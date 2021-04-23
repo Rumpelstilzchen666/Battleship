@@ -9,7 +9,12 @@ public class Battle {
     public Battle(int size, ShipType[] shipTypes) {
         this.grid0 = new Grid(size);
         this.grid1 = new Grid(size);
-        if(shipTypes == null || shipTypes.length == 0) { throw new IllegalArgumentException("ships.length == 0"); }
+        if(shipTypes == null) {
+            throw new NullPointerException("shipTypes == null");
+        }
+        if(shipTypes.length == 0) {
+            throw new IllegalArgumentException("shipTypes.length == 0");
+        }
         this.shipTypes = shipTypes;
         nShips0 = new int[this.shipTypes.length];
         Arrays.fill(nShips0, 0);
