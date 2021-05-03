@@ -139,13 +139,13 @@ public class Grid {
         }
 
         if(x > 0) {
-            if(y > 0 && grid[x - 1][y - 1] == CellState.EMPTY) {
+            if(!Settings.USE_CORNERS && y > 0 && grid[x - 1][y - 1] == CellState.EMPTY) {
                 grid[x - 1][y - 1] = CellState.AUREOLE;
             }
             if(grid[x - 1][y] == CellState.EMPTY) {
                 grid[x - 1][y] = CellState.AUREOLE;
             }
-            if(y < grid.length - 1 && grid[x - 1][y + 1] == CellState.EMPTY) {
+            if(!Settings.USE_CORNERS && y < grid.length - 1 && grid[x - 1][y + 1] == CellState.EMPTY) {
                 grid[x - 1][y + 1] = CellState.AUREOLE;
             }
         }
@@ -153,30 +153,30 @@ public class Grid {
             if(grid[x][y - 1] == CellState.EMPTY) {
                 grid[x][y - 1] = CellState.AUREOLE;
             }
-            if(x < grid.length - 1 && grid[x + 1][y - 1] == CellState.EMPTY) {
+            if(!Settings.USE_CORNERS && x < grid.length - 1 && grid[x + 1][y - 1] == CellState.EMPTY) {
                 grid[x + 1][y - 1] = CellState.AUREOLE;
             }
         }
         grid[x][y] = CellState.SUNK;
         if(endX < grid.length) {
-            if(y > 0 && grid[endX][y - 1] == CellState.EMPTY) {
+            if(!Settings.USE_CORNERS && y > 0 && grid[endX][y - 1] == CellState.EMPTY) {
                 grid[endX][y - 1] = CellState.AUREOLE;
             }
             if(grid[endX][y] == CellState.EMPTY) {
                 grid[endX][y] = CellState.AUREOLE;
             }
-            if(y < grid.length - 1 && grid[endX][y + 1] == CellState.EMPTY) {
+            if(!Settings.USE_CORNERS && y < grid.length - 1 && grid[endX][y + 1] == CellState.EMPTY) {
                 grid[endX][y + 1] = CellState.AUREOLE;
             }
         }
         if(endY < grid.length) {
-            if(x > 0 && grid[x - 1][endY] == CellState.EMPTY) {
+            if(!Settings.USE_CORNERS && x > 0 && grid[x - 1][endY] == CellState.EMPTY) {
                 grid[x - 1][endY] = CellState.AUREOLE;
             }
             if(grid[x][endY] == CellState.EMPTY) {
                 grid[x][endY] = CellState.AUREOLE;
             }
-            if(x < grid.length - 1 && grid[x + 1][endY] == CellState.EMPTY) {
+            if(!Settings.USE_CORNERS && x < grid.length - 1 && grid[x + 1][endY] == CellState.EMPTY) {
                 grid[x + 1][endY] = CellState.AUREOLE;
             }
         }
