@@ -96,17 +96,55 @@ public class Grid {
         return false;
     }
 
-    public boolean fire(final int x, final int y, final AtomicBoolean killed) throws FireCellException {
+    public boolean removeShip(final int x, final int y)
+            throws SelectedCellException, RemovalShipException {
+        checkCoordinate(x);
+        checkCoordinate(y);
+        if(!grid[x][y].isVessel()) {
+            throw new SelectedCellException("На этой клетке нет корабля.");
+        }
+
+        final Coordinate sternCoordinate = getSternCoordinate(x, y);
+        final ArrayList<Coordinate> shipCoordinates = new ArrayList<>();
+        for(int shipX = sternCoordinate.x(); shipX < grid.length && grid[shipX][sternCoordinate.y()].isVessel(); shipX++) {
+            if(grid[shipX][sternCoordinate.y()].isFired()) {
+                throw new RemovalShipException("Невозможно удалить обстрелянный корабль.");
+            }
+            shipCoordinates.add(new Coordinate(shipX, sternCoordinate.y()));
+        }
+        for(int shipY = sternCoordinate.y() + 1; shipY < grid.length && grid[sternCoordinate.x()][shipY].isVessel(); shipY++) {
+            if(grid[sternCoordinate.x()][shipY].isFired()) {
+                throw new RemovalShipException("Невозможно удалить обстрелянный корабль.");
+            }
+            shipCoordinates.add(new Coordinate(sternCoordinate.x(), shipY));
+        }
+        for(Coordinate shipCoordinate : shipCoordinates) {
+            grid[shipCoordinate.x()][shipCoordinate.y()] = CellState.EMPTY;
+        }
+        return true;
+    }
+
+    private Coordinate getSternCoordinate(int x, int y) {
+        while(x > 0 && grid[x - 1][y].isVessel()) {
+            x--;
+        }
+        while(y > 0 && grid[x][y - 1].isVessel()) {
+            y--;
+        }
+        return new Coordinate(x, y);
+    }
+
+    public boolean fire(final int x, final int y, final AtomicBoolean killed) throws SelectedCellException {
         checkCoordinate(x);
         checkCoordinate(y);
         if(grid[x][y] == CellState.PROBABLE_SHIP) {
             throw new IllegalStateException("Probable ship must be removed or confirmed");
         }
         if(grid[x][y].isFired()) {
-            throw new FireCellException("Эта клетка уже была обстреляна.");
+            throw new SelectedCellException("Эта клетка уже была обстреляна.");
         }
         if(grid[x][y] == CellState.AUREOLE) {
-            throw new FireCellException("Эта клетка соседствует с кораблём, поэтому не может быть занята.");
+            throw new SelectedCellException("Эта клетка соседствует с кораблём, поэтому не может быть занята.");
         }
         if(grid[x][y].isVessel()) {
             grid[x][y] = CellState.HIT;
@@ -118,86 +156,65 @@ public class Grid {
         return grid[x][y] != CellState.MISS;
     }
 
-    private boolean shipKilled(int x, int y) {
-        while(x > 0 && grid[x - 1][y].isVessel()) {
-            x--;
-        }
-        while(y > 0 && grid[x][y - 1].isVessel()) {
-            y--;
-        }
+    private boolean shipKilled(final int firedX, final int firedY) {
+        final Coordinate sternCoordinate = getSternCoordinate(firedX, firedY);
+        final int sternX = sternCoordinate.x(), sternY = sternCoordinate.y();
 
-        int endX, endY;
-        for(endX = x; endX < grid.length && grid[endX][y].isVessel(); endX++) {
-            if(grid[endX][y] != CellState.HIT) {
+        int bowX, bowY;
+        for(bowX = sternX; bowX < grid.length && grid[bowX][sternY].isVessel(); bowX++) {
+            if(grid[bowX][sternY] != CellState.HIT) {
                 return false;
             }
         }
-        for(endY = y + 1; endY < grid.length && grid[x][endY].isVessel(); endY++) {
-            if(grid[x][endY] != CellState.HIT) {
+        for(bowY = sternY + 1; bowY < grid.length && grid[sternX][bowY].isVessel(); bowY++) {
+            if(grid[sternX][bowY] != CellState.HIT) {
                 return false;
             }
         }
 
-        if(x > 0) {
-            if(!Settings.USE_CORNERS && y > 0 && grid[x - 1][y - 1] == CellState.EMPTY) {
-                grid[x - 1][y - 1] = CellState.AUREOLE;
+        if(!Settings.USE_CORNERS) {
+            if(sternX > 0) {
+                if(sternY > 0 && grid[sternX - 1][sternY - 1] == CellState.EMPTY) {
+                    grid[sternX - 1][sternY - 1] = CellState.AUREOLE;
+                }
+                if(bowY < grid.length && grid[sternX - 1][bowY] == CellState.EMPTY) {
+                    grid[sternX - 1][bowY] = CellState.AUREOLE;
+                }
             }
-            if(grid[x - 1][y] == CellState.EMPTY) {
-                grid[x - 1][y] = CellState.AUREOLE;
-            }
-            if(!Settings.USE_CORNERS && y < grid.length - 1 && grid[x - 1][y + 1] == CellState.EMPTY) {
-                grid[x - 1][y + 1] = CellState.AUREOLE;
-            }
-        }
-        if(y > 0) {
-            if(grid[x][y - 1] == CellState.EMPTY) {
-                grid[x][y - 1] = CellState.AUREOLE;
-            }
-            if(!Settings.USE_CORNERS && x < grid.length - 1 && grid[x + 1][y - 1] == CellState.EMPTY) {
-                grid[x + 1][y - 1] = CellState.AUREOLE;
-            }
-        }
-        grid[x][y] = CellState.SUNK;
-        if(endX < grid.length) {
-            if(!Settings.USE_CORNERS && y > 0 && grid[endX][y - 1] == CellState.EMPTY) {
-                grid[endX][y - 1] = CellState.AUREOLE;
-            }
-            if(grid[endX][y] == CellState.EMPTY) {
-                grid[endX][y] = CellState.AUREOLE;
-            }
-            if(!Settings.USE_CORNERS && y < grid.length - 1 && grid[endX][y + 1] == CellState.EMPTY) {
-                grid[endX][y + 1] = CellState.AUREOLE;
-            }
-        }
-        if(endY < grid.length) {
-            if(!Settings.USE_CORNERS && x > 0 && grid[x - 1][endY] == CellState.EMPTY) {
-                grid[x - 1][endY] = CellState.AUREOLE;
-            }
-            if(grid[x][endY] == CellState.EMPTY) {
-                grid[x][endY] = CellState.AUREOLE;
-            }
-            if(!Settings.USE_CORNERS && x < grid.length - 1 && grid[x + 1][endY] == CellState.EMPTY) {
-                grid[x + 1][endY] = CellState.AUREOLE;
+            if(bowX < grid.length) {
+                if(sternY > 0 && grid[bowX][sternY - 1] == CellState.EMPTY) {
+                    grid[bowX][sternY - 1] = CellState.AUREOLE;
+                }
+                if(bowY < grid.length && grid[bowX][bowY] == CellState.EMPTY) {
+                    grid[bowX][bowY] = CellState.AUREOLE;
+                }
             }
         }
 
-        for(int i = x + 1; i < endX; i++) {
-            if(y > 0 && grid[i][y - 1] == CellState.EMPTY) {
-                grid[i][y - 1] = CellState.AUREOLE;
+        for(int shipX = sternX; shipX < bowX; shipX++) {
+            if(sternY > 0 && grid[shipX][sternY - 1] == CellState.EMPTY) {
+                grid[shipX][sternY - 1] = CellState.AUREOLE;
             }
-            grid[i][y] = CellState.SUNK;
-            if(y < grid.length - 1 && grid[i][y + 1] == CellState.EMPTY) {
-                grid[i][y + 1] = CellState.AUREOLE;
+            grid[shipX][sternY] = CellState.SUNK;
+            if(sternY < grid.length - 1 && grid[shipX][sternY + 1] == CellState.EMPTY) {
+                grid[shipX][sternY + 1] = CellState.AUREOLE;
             }
         }
-        for(int i = y + 1; i < endY; i++) {
-            if(x > 0 && grid[x - 1][i] == CellState.EMPTY) {
-                grid[x - 1][i] = CellState.AUREOLE;
+        for(int shipY = sternY; shipY < bowY; shipY++) {
+            if(sternX > 0 && grid[sternX - 1][shipY] == CellState.EMPTY) {
+                grid[sternX - 1][shipY] = CellState.AUREOLE;
             }
-            grid[x][i] = CellState.SUNK;
-            if(x < grid.length - 1 && grid[x + 1][i] == CellState.EMPTY) {
-                grid[x + 1][i] = CellState.AUREOLE;
+            grid[sternX][shipY] = CellState.SUNK;
+            if(sternX < grid.length - 1 && grid[sternX + 1][shipY] == CellState.EMPTY) {
+                grid[sternX + 1][shipY] = CellState.AUREOLE;
             }
+        }
+
+        if(bowX < grid.length && grid[bowX][bowY - 1] == CellState.EMPTY) {
+            grid[bowX][bowY - 1] = CellState.AUREOLE;
+        }
+        if(bowY < grid.length && grid[bowX - 1][bowY] == CellState.EMPTY) {
+            grid[bowX - 1][bowY] = CellState.AUREOLE;
         }
         return true;
     }
@@ -236,7 +253,7 @@ public class Grid {
             for(int j = 0; j < getSize(); j++) {
                 System.out.print(' ' + switch(grid[i][j]) {
                     case EMPTY -> "  ";
-                    case PROBABLE_SHIP -> " ⃞ ";
+                    case PROBABLE_SHIP -> probableShipOk ? " ⃞ " : "￯ ";
                     case SHIP -> mine ? "■ " : "  ";
                     case MISS -> "○  ";
                     case HIT -> "❌ ";
@@ -318,8 +335,14 @@ public class Grid {
         }
     }
 
-    public static class FireCellException extends Exception {
-        public FireCellException(String message) {
+    public static class SelectedCellException extends Exception {
+        public SelectedCellException(String message) {
+            super(message);
+        }
+    }
+
+    public static class RemovalShipException extends Exception {
+        public RemovalShipException(String message) {
             super(message);
         }
     }
