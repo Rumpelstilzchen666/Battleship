@@ -96,8 +96,7 @@ public class Grid {
         return false;
     }
 
-    public boolean removeShip(final int x, final int y)
-            throws SelectedCellException, RemovalShipException {
+    public boolean removeShip(final int x, final int y) throws SelectedCellException, RemovalShipException {
         checkCoordinate(x);
         checkCoordinate(y);
         if(!grid[x][y].isVessel()) {
@@ -106,13 +105,15 @@ public class Grid {
 
         final Coordinate sternCoordinate = getSternCoordinate(x, y);
         final ArrayList<Coordinate> shipCoordinates = new ArrayList<>();
-        for(int shipX = sternCoordinate.x(); shipX < grid.length && grid[shipX][sternCoordinate.y()].isVessel(); shipX++) {
+        for(int shipX = sternCoordinate.x(); shipX < grid.length && grid[shipX][sternCoordinate.y()].isVessel();
+                shipX++) {
             if(grid[shipX][sternCoordinate.y()].isFired()) {
                 throw new RemovalShipException("Невозможно удалить обстрелянный корабль.");
             }
             shipCoordinates.add(new Coordinate(shipX, sternCoordinate.y()));
         }
-        for(int shipY = sternCoordinate.y() + 1; shipY < grid.length && grid[sternCoordinate.x()][shipY].isVessel(); shipY++) {
+        for(int shipY = sternCoordinate.y() + 1; shipY < grid.length && grid[sternCoordinate.x()][shipY].isVessel();
+                shipY++) {
             if(grid[sternCoordinate.x()][shipY].isFired()) {
                 throw new RemovalShipException("Невозможно удалить обстрелянный корабль.");
             }
