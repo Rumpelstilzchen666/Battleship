@@ -1,3 +1,5 @@
+package javaCode;
+
 public record ShipType(String name, int n, int len) {
     public ShipType {
         if(n < 0) {

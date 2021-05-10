@@ -1,3 +1,5 @@
+package javaCode;
+
 public class App {
     public static void main(String[] args) {
         ShipType[] ruWiki = new ShipType[] {
