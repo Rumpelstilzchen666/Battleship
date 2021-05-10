@@ -1,0 +1,39 @@
+#main-menu {
+  -fx-background-color: transparent;
+}
+
+#main-label {
+  -fx-font-size: 128;
+  -fx-font-weight: bold;
+  -fx-padding: 50 0 80;
+}
+
+.grid {
+  -fx-background-color: white;
+  -fx-text-align: center;
+}
+
+.grid-battlefield {
+  -fx-background-color: blue;
+}
+
+.grid-label {
+  -fx-font-size: 15;
+  -fx-text-align: center;
+}
+
+.main-menu-button {
+  -fx-font-size: 64;
+  -fx-text-align: center;
+  -fx-background-color: transparent;
+  -fx-background-repeat: no-repeat;
+  -fx-background-size: contain;
+}
+
+.ship {
+  -fx-fill: grey;
+  -fx-padding: 10;
+  -fx-background-color: transparent;
+  -fx-stroke: black;
+  -fx-stroke-width: 2;
+}
