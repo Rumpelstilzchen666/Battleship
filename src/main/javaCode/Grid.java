@@ -18,10 +18,10 @@ public class Grid {
         }
     }
 
-    public boolean putProbableShip(final int sternX, final int sternY, final int len, final Direction dir)
+    public boolean putProbableShip(final int sternCol, final int sternRow, final int len, final Direction dir)
             throws ShipLocationException {
-        checkCoordinate(sternX);
-        checkCoordinate(sternY);
+        checkCoordinate(sternCol);
+        checkCoordinate(sternRow);
         if(len < 1) {
             throw new IllegalArgumentException("length(" + len + ") < 1");
         }
@@ -29,33 +29,33 @@ public class Grid {
             throw new NullPointerException("direction == null");
         }
         removeProbableShip();
-        final Coordinate[] shipCoordinates = getShipCoordinates(sternX, sternY, len, dir);
+        final Coordinate[] shipCoordinates = getShipCoordinates(sternCol, sternRow, len, dir);
         probableShipCoordinates.ensureCapacity(len);
         probableShipOk = false; // Превентивная мера, чтобы не вставлять на месте каждой возможной ошибки
         boolean touchAnotherShip = false;
-        int x, y;
+        int col, row;
         for(Coordinate shipCoordinate : shipCoordinates) {
             try {
                 checkCoordinate(shipCoordinate);
             } catch(IndexOutOfBoundsException e) {
                 throw new ShipLocationException("Корабль выходит за рамки поля.");
             }
-            x = shipCoordinate.x();
-            y = shipCoordinate.y();
-            if(grid[x][y] == CellState.SHIP) {
+            col = shipCoordinate.col();
+            row = shipCoordinate.row();
+            if(grid[row][col] == CellState.SHIP) {
                 throw new ShipLocationException("Корабль пересекается с другим кораблём.");
-            } else if((x < grid.length - 1 && grid[x + 1][y] == CellState.SHIP) ||
-                    (x > 0 && grid[x - 1][y] == CellState.SHIP) ||
-                    (y < grid.length - 1 && grid[x][y + 1] == CellState.SHIP) ||
-                    (y > 0 && grid[x][y - 1] == CellState.SHIP) ||
+            } else if((col < grid.length - 1 && grid[row][col + 1] == CellState.SHIP) ||
+                    (col > 0 && grid[row][col - 1] == CellState.SHIP) ||
+                    (row < grid.length - 1 && grid[row + 1][col] == CellState.SHIP) ||
+                    (row > 0 && grid[row - 1][col] == CellState.SHIP) ||
                     !Settings.USE_CORNERS &&
-                            ((x < grid.length - 1 && y < grid.length - 1 && grid[x + 1][y + 1] == CellState.SHIP) ||
-                                    (x < grid.length - 1 && y > 0 && grid[x + 1][y - 1] == CellState.SHIP) ||
-                                    (x > 0 && y < grid.length - 1 && grid[x - 1][y + 1] == CellState.SHIP) ||
-                                    (x > 0 && y > 0 && grid[x - 1][y - 1] == CellState.SHIP))) {
+                            ((col < grid.length - 1 && row < grid.length - 1 && grid[row + 1][col + 1] == CellState.SHIP) ||
+                                    (col > 0 && row < grid.length - 1 && grid[row + 1][col - 1] == CellState.SHIP) ||
+                                    (col < grid.length - 1 && row > 0 && grid[row - 1][col + 1] == CellState.SHIP) ||
+                                    (col > 0 && row > 0 && grid[row - 1][col - 1] == CellState.SHIP))) {
                  touchAnotherShip = true;
             }
-            grid[x][y] = CellState.PROBABLE_SHIP;
+            grid[row][col] = CellState.PROBABLE_SHIP;
             probableShipCoordinates.add(shipCoordinate);
         }
         if(touchAnotherShip) {
@@ -64,14 +64,14 @@ public class Grid {
         return probableShipOk = true;
     }
 
-    private Coordinate[] getShipCoordinates(final int sternX, final int sternY, final int len, final Direction dir) {
+    private Coordinate[] getShipCoordinates(final int sternCol, final int sternRow, final int len, final Direction dir) {
         final Coordinate[] shipCoordinates = new Coordinate[len];
         for(int i = 0; i < len; i++) {
             shipCoordinates[i] = switch(dir) {
-                case UP -> new Coordinate(sternX - i, sternY);
-                case RIGHT -> new Coordinate(sternX, sternY + i);
-                case DOWN -> new Coordinate(sternX + i, sternY);
-                case LEFT -> new Coordinate(sternX, sternY - i);
+                case UP -> new Coordinate(sternCol, sternRow - i);
+                case RIGHT -> new Coordinate(sternCol + i, sternRow);
+                case DOWN -> new Coordinate(sternCol, sternRow + i);
+                case LEFT -> new Coordinate(sternCol - i, sternRow);
             };
         }
         return shipCoordinates;
@@ -79,157 +79,157 @@ public class Grid {
 
     public void removeProbableShip() {
         for(Coordinate probableShipCoordinate : probableShipCoordinates) {
-            grid[probableShipCoordinate.x()][probableShipCoordinate.y()] = CellState.EMPTY;
+            grid[probableShipCoordinate.row()][probableShipCoordinate.col()] = CellState.EMPTY;
         }
         probableShipCoordinates.clear();
     }
 
     public boolean confirmProbableShip() throws ShipLocationException {
-        if(!probableShipCoordinates.isEmpty()) {
-            if(!probableShipOk) {
-                throw new ShipLocationException("Корабль расположен неправильно.");
-            }
-            for(Coordinate coordinate : probableShipCoordinates) {
-                grid[coordinate.x()][coordinate.y()] = CellState.SHIP;
-            }
-            probableShipCoordinates.clear();
-            return true;
+        if(probableShipCoordinates.isEmpty()) {
+            return false;
         }
-        return false;
+        if(!probableShipOk) {
+            throw new ShipLocationException("Корабль расположен неправильно.");
+        }
+        for(Coordinate coordinate : probableShipCoordinates) {
+            grid[coordinate.row()][coordinate.col()] = CellState.SHIP;
+        }
+        probableShipCoordinates.clear();
+        return true;
     }
 
-    public boolean removeShip(final int x, final int y) throws SelectedCellException, RemovalShipException {
-        checkCoordinate(x);
-        checkCoordinate(y);
-        if(!grid[x][y].isVessel()) {
+    public boolean removeShip(final int col, final int row) throws SelectedCellException, RemovalShipException {
+        checkCoordinate(col);
+        checkCoordinate(row);
+        if(!grid[row][col].isVessel()) {
             throw new SelectedCellException("На этой клетке нет корабля.");
         }
 
-        final Coordinate sternCoordinate = getSternCoordinate(x, y);
+        final Coordinate sternCoordinate = getSternCoordinate(col, row);
         final ArrayList<Coordinate> shipCoordinates = new ArrayList<>();
-        for(int shipX = sternCoordinate.x(); shipX < grid.length && grid[shipX][sternCoordinate.y()].isVessel();
-                shipX++) {
-            if(grid[shipX][sternCoordinate.y()].isFired()) {
+        for(int shipCol = sternCoordinate.col() + 1;
+                shipCol < grid.length && grid[sternCoordinate.row()][shipCol].isVessel(); shipCol++) {
+            if(grid[sternCoordinate.row()][shipCol].isFired()) {
                 throw new RemovalShipException("Невозможно удалить обстрелянный корабль.");
             }
-            shipCoordinates.add(new Coordinate(shipX, sternCoordinate.y()));
+            shipCoordinates.add(new Coordinate(shipCol, sternCoordinate.row()));
         }
-        for(int shipY = sternCoordinate.y() + 1; shipY < grid.length && grid[sternCoordinate.x()][shipY].isVessel();
-                shipY++) {
-            if(grid[sternCoordinate.x()][shipY].isFired()) {
+        for(int shipRow = sternCoordinate.row();
+                shipRow < grid.length && grid[shipRow][sternCoordinate.col()].isVessel(); shipRow++) {
+            if(grid[shipRow][sternCoordinate.col()].isFired()) {
                 throw new RemovalShipException("Невозможно удалить обстрелянный корабль.");
             }
-            shipCoordinates.add(new Coordinate(sternCoordinate.x(), shipY));
+            shipCoordinates.add(new Coordinate(sternCoordinate.col(), shipRow));
         }
         for(Coordinate shipCoordinate : shipCoordinates) {
-            grid[shipCoordinate.x()][shipCoordinate.y()] = CellState.EMPTY;
+            grid[shipCoordinate.row()][shipCoordinate.col()] = CellState.EMPTY;
         }
         return true;
     }
 
-    private Coordinate getSternCoordinate(int x, int y) {
-        while(x > 0 && grid[x - 1][y].isVessel()) {
-            x--;
+    private Coordinate getSternCoordinate(int col, int row) {
+        while(col > 0 && grid[row][col - 1].isVessel()) {
+            col--;
         }
-        while(y > 0 && grid[x][y - 1].isVessel()) {
-            y--;
+        while(row > 0 && grid[row - 1][col].isVessel()) {
+            row--;
         }
-        return new Coordinate(x, y);
+        return new Coordinate(col, row);
     }
 
-    public boolean fire(final int x, final int y, final AtomicBoolean killed) throws SelectedCellException {
-        checkCoordinate(x);
-        checkCoordinate(y);
-        if(grid[x][y] == CellState.PROBABLE_SHIP) {
+    public boolean fire(final int col, final int row, final AtomicBoolean killed) throws SelectedCellException {
+        checkCoordinate(col);
+        checkCoordinate(row);
+        if(grid[row][col] == CellState.PROBABLE_SHIP) {
             throw new IllegalStateException("Probable ship must be removed or confirmed");
         }
-        if(grid[x][y].isFired()) {
+        if(grid[row][col].isFired()) {
             throw new SelectedCellException("Эта клетка уже была обстреляна.");
         }
-        if(grid[x][y] == CellState.AUREOLE) {
+        if(grid[row][col] == CellState.AUREOLE) {
             throw new SelectedCellException("Эта клетка соседствует с кораблём, поэтому не может быть занята.");
         }
-        if(grid[x][y].isVessel()) {
-            grid[x][y] = CellState.HIT;
-            killed.set(shipKilled(x, y));
+        if(grid[row][col].isVessel()) {
+            grid[row][col] = CellState.HIT;
+            killed.set(shipKilled(col, row));
         } else {
-            grid[x][y] = CellState.MISS;
+            grid[row][col] = CellState.MISS;
             killed.set(false);
         }
-        return grid[x][y] != CellState.MISS;
+        return grid[row][col] != CellState.MISS;
     }
 
-    private boolean shipKilled(final int firedX, final int firedY) {
-        final Coordinate sternCoordinate = getSternCoordinate(firedX, firedY);
-        final int sternX = sternCoordinate.x(), sternY = sternCoordinate.y();
+    private boolean shipKilled(final int firedCol, final int firedRow) {
+        final Coordinate sternCoordinate = getSternCoordinate(firedCol, firedRow);
+        final int sternCol = sternCoordinate.col(), sternRow = sternCoordinate.row();
 
-        int bowX, bowY;
-        for(bowX = sternX; bowX < grid.length && grid[bowX][sternY].isVessel(); bowX++) {
-            if(grid[bowX][sternY] != CellState.HIT) {
+        int bowCol, bowRow;
+        for(bowCol = sternCol; bowCol < grid.length && grid[sternRow][bowCol].isVessel(); bowCol++) {
+            if(grid[sternRow][bowCol] != CellState.HIT) {
                 return false;
             }
         }
-        for(bowY = sternY + 1; bowY < grid.length && grid[sternX][bowY].isVessel(); bowY++) {
-            if(grid[sternX][bowY] != CellState.HIT) {
+        for(bowRow = sternRow + 1; bowRow < grid.length && grid[bowRow][sternCol].isVessel(); bowRow++) {
+            if(grid[bowRow][sternCol] != CellState.HIT) {
                 return false;
             }
         }
 
         if(!Settings.USE_CORNERS) {
-            if(sternX > 0) {
-                if(sternY > 0 && grid[sternX - 1][sternY - 1] == CellState.EMPTY) {
-                    grid[sternX - 1][sternY - 1] = CellState.AUREOLE;
+            if(sternCol > 0) {
+                if(sternRow > 0 && grid[sternRow - 1][sternCol - 1] == CellState.EMPTY) {
+                    grid[sternRow - 1][sternCol - 1] = CellState.AUREOLE;
                 }
-                if(bowY < grid.length && grid[sternX - 1][bowY] == CellState.EMPTY) {
-                    grid[sternX - 1][bowY] = CellState.AUREOLE;
+                if(bowRow < grid.length && grid[bowRow][sternCol - 1] == CellState.EMPTY) {
+                    grid[bowRow][sternCol - 1] = CellState.AUREOLE;
                 }
             }
-            if(bowX < grid.length) {
-                if(sternY > 0 && grid[bowX][sternY - 1] == CellState.EMPTY) {
-                    grid[bowX][sternY - 1] = CellState.AUREOLE;
+            if(bowCol < grid.length) {
+                if(sternRow > 0 && grid[sternRow - 1][bowCol] == CellState.EMPTY) {
+                    grid[sternRow - 1][bowCol] = CellState.AUREOLE;
                 }
-                if(bowY < grid.length && grid[bowX][bowY] == CellState.EMPTY) {
-                    grid[bowX][bowY] = CellState.AUREOLE;
+                if(bowRow < grid.length && grid[bowRow][bowCol] == CellState.EMPTY) {
+                    grid[bowRow][bowCol] = CellState.AUREOLE;
                 }
             }
         }
 
-        for(int shipX = sternX; shipX < bowX; shipX++) {
-            if(sternY > 0 && grid[shipX][sternY - 1] == CellState.EMPTY) {
-                grid[shipX][sternY - 1] = CellState.AUREOLE;
+        for(int shipCol = sternCol; shipCol < bowCol; shipCol++) {
+            if(sternRow > 0 && grid[sternRow - 1][shipCol] == CellState.EMPTY) {
+                grid[sternRow - 1][shipCol] = CellState.AUREOLE;
             }
-            grid[shipX][sternY] = CellState.SUNK;
-            if(sternY < grid.length - 1 && grid[shipX][sternY + 1] == CellState.EMPTY) {
-                grid[shipX][sternY + 1] = CellState.AUREOLE;
+            grid[sternRow][shipCol] = CellState.SUNK;
+            if(sternRow < grid.length - 1 && grid[sternRow + 1][shipCol] == CellState.EMPTY) {
+                grid[sternRow + 1][shipCol] = CellState.AUREOLE;
             }
         }
-        for(int shipY = sternY; shipY < bowY; shipY++) {
-            if(sternX > 0 && grid[sternX - 1][shipY] == CellState.EMPTY) {
-                grid[sternX - 1][shipY] = CellState.AUREOLE;
+        for(int shipRow = sternRow; shipRow < bowRow; shipRow++) {
+            if(sternCol > 0 && grid[shipRow][sternCol - 1] == CellState.EMPTY) {
+                grid[shipRow][sternCol - 1] = CellState.AUREOLE;
             }
-            grid[sternX][shipY] = CellState.SUNK;
-            if(sternX < grid.length - 1 && grid[sternX + 1][shipY] == CellState.EMPTY) {
-                grid[sternX + 1][shipY] = CellState.AUREOLE;
+            grid[shipRow][sternCol] = CellState.SUNK;
+            if(sternCol < grid.length - 1 && grid[shipRow][sternCol + 1] == CellState.EMPTY) {
+                grid[shipRow][sternCol + 1] = CellState.AUREOLE;
             }
         }
 
-        if(bowX < grid.length && grid[bowX][bowY - 1] == CellState.EMPTY) {
-            grid[bowX][bowY - 1] = CellState.AUREOLE;
+        if(bowCol < grid.length && grid[bowRow - 1][bowCol] == CellState.EMPTY) {
+            grid[bowRow - 1][bowCol] = CellState.AUREOLE;
         }
-        if(bowY < grid.length && grid[bowX - 1][bowY] == CellState.EMPTY) {
-            grid[bowX - 1][bowY] = CellState.AUREOLE;
+        if(bowRow < grid.length && grid[bowRow][bowCol - 1] == CellState.EMPTY) {
+            grid[bowRow][bowCol - 1] = CellState.AUREOLE;
         }
         return true;
     }
 
     private void checkCoordinate(final Coordinate coordinate) {
-        checkCoordinate(coordinate.x());
-        checkCoordinate(coordinate.y());
+        checkCoordinate(coordinate.col());
+        checkCoordinate(coordinate.row());
     }
 
-    private void checkCoordinate(final int x) {
-        if(x < 0 || x >= grid.length) {
-            throw new IndexOutOfBoundsException("Coordinate: " + x + ", Size: " + grid.length);
+    private void checkCoordinate(final int line) {
+        if(line < 0 || line >= grid.length) {
+            throw new IndexOutOfBoundsException("Coordinate: " + line + ", Size: " + grid.length);
         }
     }
 
@@ -330,7 +330,7 @@ public class Grid {
         TOP, DOUBLE, CENTRAL, BOTTOM
     }
 
-    private record Coordinate(int x, int y) { }
+    private record Coordinate(int col, int row) { }
 
     public static class ShipLocationException extends Exception {
         public ShipLocationException(String message) {

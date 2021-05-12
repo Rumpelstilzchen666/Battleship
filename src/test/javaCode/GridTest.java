@@ -34,9 +34,9 @@ class GridTest {
     void newGridEmpty() {
         Grid.CellState[][] grid = new Grid(DEFAULT_SIZE).getGrid();
         boolean gridEmpty = true;
-        for(int i = 0; i < DEFAULT_SIZE; i++) {
-            for(int j = 0; j < DEFAULT_SIZE; j++) {
-                if(grid[i][j] != Grid.CellState.EMPTY) {
+        for(int row = 0; row < DEFAULT_SIZE; row++) {
+            for(int col = 0; col < DEFAULT_SIZE; col++) {
+                if(grid[row][col] != Grid.CellState.EMPTY) {
                     gridEmpty = false;
                     break;
                 }
@@ -54,9 +54,9 @@ class GridTest {
 
         @ParameterizedTest
         @MethodSource("coordinatesOutOfGrid")
-        void throwsExceptionWhenSternOutOfGrid(final int x, final int y) {
+        void throwsExceptionWhenSternOutOfGrid(final int col, final int row) {
             assertThrows(IndexOutOfBoundsException.class,
-                    () -> grid.putProbableShip(x, y, DEFAULT_LEN, DEFAULT_DIRECTION));
+                    () -> grid.putProbableShip(col, row, DEFAULT_LEN, DEFAULT_DIRECTION));
         }
 
         private static Stream<Integer[]> coordinatesOutOfGrid() {
@@ -204,8 +204,8 @@ class GridTest {
 
                     @ParameterizedTest
                     @MethodSource("coordinatesOutOfGrid")
-                    void throwsExceptionWhenCellCoordinatesOutOfGrid(final int x, final int y) {
-                        assertThrows(IndexOutOfBoundsException.class, () -> grid.removeShip(x, y));
+                    void throwsExceptionWhenCellCoordinatesOutOfGrid(final int col, final int row) {
+                        assertThrows(IndexOutOfBoundsException.class, () -> grid.removeShip(col, row));
                     }
 
                     private static Stream<Integer[]> coordinatesOutOfGrid() {
@@ -225,15 +225,15 @@ class GridTest {
                     @CsvSource({"          1,  DOWN,                          0,                     0",
                             "              1,  LEFT, " + (DEFAULT_SIZE - 1) + ", " + (DEFAULT_SIZE - 1),
                             DEFAULT_SIZE + ",  DOWN,                          0,                     0",
-                            DEFAULT_SIZE + ",  DOWN,                          3,                     0",
-                            DEFAULT_SIZE + ",  DOWN, " + (DEFAULT_SIZE - 1) + ",                     0",
-                            DEFAULT_SIZE + ", RIGHT,                          0,                     7",
-                            DEFAULT_SIZE + ", RIGHT,                          0, " + (DEFAULT_SIZE - 1)})
-                    void removeShip(final int len, final Grid.Direction dir, final int x, final int y)
+                            DEFAULT_SIZE + ",  DOWN,                          0,                     3",
+                            DEFAULT_SIZE + ",  DOWN,                          0, " + (DEFAULT_SIZE - 1),
+                            DEFAULT_SIZE + ", RIGHT,                          7,                     0",
+                            DEFAULT_SIZE + ", RIGHT, " + (DEFAULT_SIZE - 1) + ",                     0"})
+                    void removeShip(final int len, final Grid.Direction dir, final int col, final int row)
                             throws Grid.ShipLocationException, Grid.SelectedCellException, Grid.RemovalShipException {
                         putDefaultProbableShip(len, dir);
                         grid.confirmProbableShip();
-                        grid.removeShip(x, y);
+                        grid.removeShip(col, row);
                         assertTrue(isGridEmpty());
                     }
 
@@ -255,8 +255,8 @@ class GridTest {
 
                 @ParameterizedTest
                 @MethodSource("coordinatesOutOfGrid")
-                void throwsExceptionWhenFireOutOfGrid(final int x, final int y) {
-                    assertThrows(IndexOutOfBoundsException.class, () -> grid.removeShip(x, y));
+                void throwsExceptionWhenFireOutOfGrid(final int col, final int row) {
+                    assertThrows(IndexOutOfBoundsException.class, () -> grid.removeShip(col, row));
                 }
 
                 private static Stream<Integer[]> coordinatesOutOfGrid() {
@@ -298,15 +298,15 @@ class GridTest {
 
                     @BeforeAll
                     static void putShips() throws Grid.ShipLocationException {
-                        final int[] sternXs = new int[]{0, 3, 9, 0, 9, 6, 4, 9, 2};
-                        final int[] sternYs = new int[]{0, 3, 9, 9, 0, 4, 6, 2, 9};
-                        final int[] lens    = new int[]{1, 1, 1, 1, 1, 4, 4, 6, 6};
+                        final int[] sternCols = new int[]{0, 3, 9, 9, 0, 4, 6, 2, 9};
+                        final int[] sternRows = new int[]{0, 3, 9, 0, 9, 6, 4, 9, 2};
+                        final int[] lens      = new int[]{1, 1, 1, 1, 1, 4, 4, 6, 6};
                         final Grid.Direction[] directions =
                                 new Grid.Direction[]{Grid.Direction.UP, Grid.Direction.UP, Grid.Direction.UP,
                                         Grid.Direction.UP, Grid.Direction.UP, Grid.Direction.LEFT, Grid.Direction.UP,
                                         Grid.Direction.RIGHT, Grid.Direction.DOWN};
-                        for(int i = 0; i < sternXs.length; i++) {
-                            grid.putProbableShip(sternXs[i], sternYs[i], lens[i], directions[i]);
+                        for(int i = 0; i < sternRows.length; i++) {
+                            grid.putProbableShip(sternCols[i], sternRows[i], lens[i], directions[i]);
                             grid.confirmProbableShip();
                         }
                         grid.printGrid(true);
@@ -336,13 +336,13 @@ class GridTest {
                             "6, 2,  true, false",
                             "6, 3,  true, false",
                             "6, 4,  true,  true",
-                            "9, 2,  true, false",
-                            "9, 4,  true, false",
-                            "9, 6,  true, false"
+                            "2, 9,  true, false",
+                            "4, 9,  true, false",
+                            "6, 9,  true, false"
                     })
-                    void assertFireResult(final int x, final int y, final boolean expectedHit, final boolean expectedSunk) throws Grid.SelectedCellException {
+                    void assertFireResult(final int col, final int row, final boolean expectedHit, final boolean expectedSunk) throws Grid.SelectedCellException {
                         AtomicBoolean killed = new AtomicBoolean();
-                        assertEquals(grid.fire(x, y, killed), expectedHit);
+                        assertEquals(grid.fire(col, row, killed), expectedHit);
                         assertEquals(killed.get(), expectedSunk);
                     }
 
