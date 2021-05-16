@@ -1,0 +1,17 @@
+.background {
+  -fx-background-color: black;
+}
+
+.grid {
+  -fx-grid-lines-color: aqua;
+  -fx-stroke: aqua;
+  -fx-background-color: black;
+}
+
+.grid-battlefield {
+  -fx-background-color: blue;
+}
+
+.label {
+  -fx-text-fill: aqua;
+}

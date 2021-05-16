@@ -1,0 +1,11 @@
+.background {
+  -fx-background-color: transparent;
+}
+
+.grid {
+  -fx-background-color: white;
+}
+
+.grid-battlefield {
+  -fx-background-color: blue;
+}

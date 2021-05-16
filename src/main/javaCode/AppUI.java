@@ -77,9 +77,9 @@ public class AppUI {
         final double padding = cellSize * 0.1;
         final double shipLen = cellSize * widthInCells - padding * 2;
         final double shipWidth = cellSize - padding * 2;
-        Polygon ship =
-                new Polygon(0, 0, shipLen * 3 / 4, 0, shipLen, shipWidth / 2, shipLen * 3 / 4, shipWidth, 0, shipWidth);
-        ship.getStyleClass().add("ship");
+        final Polygon ship = new Polygon(0, 0, shipLen * 3 / 4, 0, shipLen, shipWidth / 2,
+                shipLen * 3 / 4, shipWidth, 0, shipWidth);
+        ship.getStyleClass().addAll("ship", "ok-ship");
         return ship;
     }
 

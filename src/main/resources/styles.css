@@ -1,5 +1,30 @@
-#main-menu {
+.cell-button {
   -fx-background-color: transparent;
+}
+
+.ship {
+  -fx-background-color: transparent;
+  -fx-stroke: black;
+  -fx-stroke-width: 2;
+}
+
+.ok-ship {
+  -fx-fill: lightslategrey;
+}
+
+.probable-ship {
+  -fx-fill: #778999b2;
+}
+
+.incorrect-ship {
+  -fx-fill: firebrick;
+}
+
+.menu-button {
+  -fx-font-size: 64;
+  -fx-background-color: transparent;
+  -fx-background-repeat: no-repeat;
+  -fx-background-size: contain;
 }
 
 #main-label {
@@ -8,32 +33,23 @@
   -fx-padding: 50 0 80;
 }
 
-.grid {
-  -fx-background-color: white;
-  -fx-text-align: center;
-}
-
-.grid-battlefield {
-  -fx-background-color: blue;
-}
-
-.grid-label {
-  -fx-font-size: 15;
-  -fx-text-align: center;
-}
-
-.main-menu-button {
+.game-label {
   -fx-font-size: 64;
-  -fx-text-align: center;
-  -fx-background-color: transparent;
-  -fx-background-repeat: no-repeat;
-  -fx-background-size: contain;
+  -fx-font-weight: bold;
 }
 
-.ship {
-  -fx-fill: grey;
-  -fx-padding: 10;
-  -fx-background-color: transparent;
-  -fx-stroke: black;
-  -fx-stroke-width: 2;
+#shipTypesGrid {
+  -fx-grid-lines-visible: true;
+}
+
+.action-button {
+  -fx-font-size: 30;
+}
+
+.cancel-button {
+  -fx-background-color: red;
+}
+
+.done-button {
+  -fx-background-color: green;
 }

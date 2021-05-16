@@ -30,6 +30,8 @@ public class App extends Application {
         final Scene mainScene = new Scene(new Parent() { });
         mainScene.getStylesheets().add(
                 Objects.requireNonNull(getClass().getResource("/resources/styles.css")).toExternalForm());
+        mainScene.getStylesheets().add(
+                Objects.requireNonNull(getClass().getResource(Settings.style.getFilePath())).toExternalForm());
         this.primaryStage.setScene(mainScene);
         this.primaryStage.setMaximized(true);
         primaryStage.setResizable(false);
