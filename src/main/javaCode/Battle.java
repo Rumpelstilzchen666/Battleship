@@ -4,13 +4,13 @@ import java.util.Arrays;
 
 
 public class Battle {
-    public final Grid grid0, grid1;
+    public final Grid[] grid;
     public final ShipType[] shipTypes;
-    public final int[] nShips0, nShips1;
+    public final int[][] nShips = new int[2][];
+    public final String[] playersNames = new String[]{"Ярослав", "Тестировщик"};
 
-    public Battle(int size, ShipType[] shipTypes) {
-        this.grid0 = new Grid(size);
-        this.grid1 = new Grid(size);
+    public Battle(final int size, final ShipType[] shipTypes) {
+        grid = new Grid[]{new Grid(size), new Grid(size)};
         if(shipTypes == null) {
             throw new NullPointerException("shipTypes == null");
         }
@@ -18,17 +18,13 @@ public class Battle {
             throw new IllegalArgumentException("shipTypes.length == 0");
         }
         this.shipTypes = shipTypes;
-        nShips0 = new int[this.shipTypes.length];
-        Arrays.fill(nShips0, 0);
-        nShips1 = nShips0.clone();
+        nShips[0] = new int[this.shipTypes.length];
+        Arrays.fill(nShips[0], 0);
+        nShips[1] = nShips[0].clone();
     }
 
-    public int[] getNShips0() {
-        return nShips0;
-    }
-
-    public int[] getNShips1() {
-        return nShips1;
+    public int[] getNShips(final int playerN) {
+        return nShips[playerN];
     }
 
     public int[] getMaxNShips() {

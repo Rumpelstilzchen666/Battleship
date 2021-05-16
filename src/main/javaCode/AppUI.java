@@ -1,6 +1,7 @@
 package javaCode;
 
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
@@ -11,12 +12,14 @@ import javafx.scene.shape.Polygon;
 import java.util.Arrays;
 
 public class AppUI {
-    public static GridPane getBattleGrid(final int size, final int cellSize) {
-        return getBattleGrid(size, size, cellSize);
+    public static GridPane prepareBattleGrid(final GridPane grid, final int size, final int cellSize) {
+        return prepareBattleGrid(grid, size, size, cellSize);
     }
 
-    public static GridPane getBattleGrid(final int nRows, final int nCols, final int cellSize) {
-        final GridPane grid = new GridPane();
+    public static GridPane prepareBattleGrid(GridPane grid, final int nRows, final int nCols, final int cellSize) {
+        if(grid == null) {
+            grid = new GridPane();
+        }
         grid.getStyleClass().add("grid");
         grid.setGridLinesVisible(true);
         final double width = cellSize * (nCols + 1), height = cellSize * (nRows + 1);
@@ -66,10 +69,11 @@ public class AppUI {
         Label label = new Label(text);
         label.getStyleClass().add("grid-label");
         label.setStyle("-fx-font-size: " + cellSize / 3 + ';');
+        label.setPadding(new Insets(cellSize * 0.1));
         return label;
     }
 
-    public static Polygon getShipPolygon(final int widthInCells, final int cellSize) {
+    public static Polygon getShip(final int widthInCells, final int cellSize) {
         final double padding = cellSize * 0.1;
         final double shipLen = cellSize * widthInCells - padding * 2;
         final double shipWidth = cellSize - padding * 2;
