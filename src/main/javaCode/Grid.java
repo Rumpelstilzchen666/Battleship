@@ -326,8 +326,6 @@ public class Grid {
         TOP, DOUBLE, CENTRAL, BOTTOM
     }
 
-    private record Coordinate(int col, int row) { }
-
     public static class ShipLocationException extends Exception {
         public ShipLocationException(String message) {
             super(message);
