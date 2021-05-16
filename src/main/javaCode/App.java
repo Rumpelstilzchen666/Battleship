@@ -57,6 +57,12 @@ public class App extends Application {
 
     public void putShips(final int playerN) {
         System.out.println(battle.playersNames[playerN] + " расставляет свои корабли.");
+        try {
+            primaryStage.getScene().setRoot(
+                    new FXMLLoader(getClass().getResource("/resources/layouts/arrangeShipsScene.fxml")).load());
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void startBattle() {

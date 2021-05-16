@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane styleClass="background" xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaCode.Controllers.ArrangeShipsSceneController">
+  <top>
+    <Label id="header" fx:id="header" styleClass="game-label" BorderPane.alignment="TOP_CENTER"
+           text="Игрок, расставьте свои корабли на поле"/>
+  </top>
+  <center>
+    <HBox id="grid-h-box" fx:id="gridHBox" alignment="CENTER">
+      <GridPane id="game-grid" fx:id="gameGrid" styleClass="grid" gridLinesVisible="true"/>
+      <GridPane id="ship-types-grid" fx:id="shipTypesGrid" alignment="TOP_CENTER" gridLinesVisible="true">
+        <columnConstraints>
+          <ColumnConstraints fx:id="nameCol" halignment="CENTER" hgrow="NEVER"/>
+          <ColumnConstraints fx:id="shapeCol" halignment="CENTER" hgrow="NEVER"/>
+          <ColumnConstraints fx:id="nCol" halignment="CENTER" hgrow="NEVER"/>
+        </columnConstraints>
+      </GridPane>
+    </HBox>
+  </center>
+  <bottom>
+    <ButtonBar styleClass="action-button">
+      <buttons>
+        <Button id="done-button" fx:id="doneButton" styleClass="done-button" onAction="#forward" disable="true"
+                text="_Подтвердить" ButtonBar.buttonData="OK_DONE"/>
+        <Button id="cancel-button" fx:id="cancelButton" styleClass="cancel-button" onAction="#finish"
+                text="_Выход" ButtonBar.buttonData="CANCEL_CLOSE"/>
+      </buttons>
+    </ButtonBar>
+  </bottom>
+</BorderPane>

@@ -45,7 +45,7 @@ public class AppUI {
         return grid;
     }
 
-    private static ColumnConstraints[] getColumnConstraintsForGrid(final int nCols) {
+    public static ColumnConstraints[] getColumnConstraintsForGrid(final int nCols) {
         ColumnConstraints[] columnConstraints = new ColumnConstraints[nCols];
         for(int colN = 0; colN < nCols; colN++) {
             columnConstraints[colN] = new ColumnConstraints();
@@ -55,7 +55,7 @@ public class AppUI {
         return columnConstraints;
     }
 
-    private static RowConstraints[] getRowConstraintsForGrid(final int nRows) {
+    public static RowConstraints[] getRowConstraintsForGrid(final int nRows) {
         RowConstraints[] rowConstraints = new RowConstraints[nRows];
         for(int rowN = 0; rowN < nRows; rowN++) {
             rowConstraints[rowN] = new RowConstraints();
@@ -65,7 +65,7 @@ public class AppUI {
         return rowConstraints;
     }
 
-    private static Label getLabelForGrid(final String text, final int cellSize) {
+    public static Label getLabelForGrid(final String text, final int cellSize) {
         Label label = new Label(text);
         label.getStyleClass().add("grid-label");
         label.setStyle("-fx-font-size: " + cellSize / 3 + ';');
