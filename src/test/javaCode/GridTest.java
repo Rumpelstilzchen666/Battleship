@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GridTest {
     private static final int DEFAULT_SIZE = 10, DEFAULT_LEN = 1;
-    private static final Grid.Direction DEFAULT_DIRECTION = Grid.Direction.RIGHT;
+    private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
     private static final Integer[][] coordinatesOutOfGrid = new Integer[][] {
             {          -1,           -1}, {          -1,            0}, {          -1, DEFAULT_SIZE},
             {           0,           -1},                               {           0, DEFAULT_SIZE},
@@ -75,13 +75,13 @@ class GridTest {
 
         @ParameterizedTest
         @EnumSource
-        void throwsExceptionWhenProbableShipOutOfGrid(final Grid.Direction direction) {
+        void throwsExceptionWhenProbableShipOutOfGrid(final Direction direction) {
             assertThrows(Grid.ShipLocationException.class, () -> putDefaultProbableShip(DEFAULT_SIZE + 1, direction));
         }
 
         @ParameterizedTest
         @EnumSource
-        void doesNotThrowsExceptionWhenProbableShipInGrid(Grid.Direction direction) {
+        void doesNotThrowsExceptionWhenProbableShipInGrid(Direction direction) {
             assertDoesNotThrow(() -> putDefaultProbableShip(direction));
         }
 
@@ -89,7 +89,7 @@ class GridTest {
         @CsvSource({"          1, RIGHT", "              1, DOWN", "              1, UP", "              1, LEFT",
                 "              3, RIGHT", "              3, DOWN", "              3, UP", "              3, LEFT",
                 DEFAULT_SIZE + ", RIGHT", DEFAULT_SIZE + ", DOWN", DEFAULT_SIZE + ", UP", DEFAULT_SIZE + ", LEFT"})
-        void putProbableShipInDifferentDirections(int len, Grid.Direction direction) throws Grid.ShipLocationException {
+        void putProbableShipInDifferentDirections(int len, Direction direction) throws Grid.ShipLocationException {
             final int sternCoordinate = switch(direction) {
                 case RIGHT, DOWN -> 0;
                 case UP, LEFT -> DEFAULT_SIZE - 1;
@@ -229,7 +229,7 @@ class GridTest {
                             DEFAULT_SIZE + ",  DOWN,                          0, " + (DEFAULT_SIZE - 1),
                             DEFAULT_SIZE + ", RIGHT,                          7,                     0",
                             DEFAULT_SIZE + ", RIGHT, " + (DEFAULT_SIZE - 1) + ",                     0"})
-                    void removeShip(final int len, final Grid.Direction dir, final int col, final int row)
+                    void removeShip(final int len, final Direction dir, final int col, final int row)
                             throws Grid.ShipLocationException, Grid.SelectedCellException, Grid.RemovalShipException {
                         putDefaultProbableShip(len, dir);
                         grid.confirmProbableShip();
@@ -301,10 +301,10 @@ class GridTest {
                         final int[] sternCols = new int[]{0, 3, 9, 9, 0, 4, 6, 2, 9};
                         final int[] sternRows = new int[]{0, 3, 9, 0, 9, 6, 4, 9, 2};
                         final int[] lens      = new int[]{1, 1, 1, 1, 1, 4, 4, 6, 6};
-                        final Grid.Direction[] directions =
-                                new Grid.Direction[]{Grid.Direction.UP, Grid.Direction.UP, Grid.Direction.UP,
-                                        Grid.Direction.UP, Grid.Direction.UP, Grid.Direction.LEFT, Grid.Direction.UP,
-                                        Grid.Direction.RIGHT, Grid.Direction.DOWN};
+                        final Direction[] directions =
+                                new Direction[]{Direction.UP, Direction.UP, Direction.UP,
+                                        Direction.UP, Direction.UP, Direction.LEFT, Direction.UP,
+                                        Direction.RIGHT, Direction.DOWN};
                         for(int i = 0; i < sternRows.length; i++) {
                             grid.putProbableShip(sternCols[i], sternRows[i], lens[i], directions[i]);
                             grid.confirmProbableShip();
@@ -359,7 +359,7 @@ class GridTest {
             return Arrays.deepEquals(grid.getGrid(), new Grid(DEFAULT_SIZE).getGrid());
         }
 
-        private boolean putDefaultProbableShip(final Grid.Direction direction) throws Grid.ShipLocationException {
+        private boolean putDefaultProbableShip(final Direction direction) throws Grid.ShipLocationException {
             return putDefaultProbableShip(DEFAULT_LEN, direction);
         }
 
@@ -367,7 +367,7 @@ class GridTest {
             return putDefaultProbableShip(len, DEFAULT_DIRECTION);
         }
 
-        private boolean putDefaultProbableShip(final int len, final Grid.Direction direction)
+        private boolean putDefaultProbableShip(final int len, final Direction direction)
                 throws Grid.ShipLocationException {
             final int sternCoordinate = switch(direction) {
                 case RIGHT, DOWN -> 0;

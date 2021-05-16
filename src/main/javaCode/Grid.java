@@ -310,10 +310,6 @@ public class Grid {
         System.out.print(right + "\n");
     }
 
-    public enum Direction {
-        UP, RIGHT, DOWN, LEFT
-    }
-
     public enum CellState {
         EMPTY, PROBABLE_SHIP, SHIP, MISS, HIT, SUNK, AUREOLE;
 
