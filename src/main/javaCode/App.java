@@ -15,6 +15,7 @@ import java.util.Objects;
 
 public class App extends Application {
     private static final HashMap<String, ShipType[]> shipTypes = new HashMap<>();
+    private int playerN;
     private Stage primaryStage;
     private Battle battle;
     private final int cellSize = 50;
@@ -56,6 +57,7 @@ public class App extends Application {
     }
 
     public void putShips(final int playerN) {
+        this.playerN = playerN;
         System.out.println(battle.playersNames[playerN] + " расставляет свои корабли.");
         try {
             primaryStage.getScene().setRoot(
@@ -72,6 +74,10 @@ public class App extends Application {
     public void finishGame() {
         battle = null;
         setMainMenuScene();
+    }
+
+    public int getPlayerN() {
+        return playerN;
     }
 
     public Battle getBattle() {

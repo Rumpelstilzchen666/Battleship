@@ -3,12 +3,15 @@ package javaCode.Controllers;
 import javaCode.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Shape;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -30,35 +33,42 @@ public class ArrangeShipsSceneController implements Initializable {
     private ColumnConstraints shapeCol;
     @FXML
     private ColumnConstraints nCol;
+    @FXML
+    private Button doneButton;
 
     private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
     private static App app;
-    private static int playerN;
-    private static Grid grid;
+    private final int playerN;
+    private final Grid grid;
+    private final ShipType[] shipTypes;
+    private final Label[] nShipsLabels;
+
+    public ArrangeShipsSceneController() {
+        if(app == null) {
+            throw new IllegalStateException("ArrangeShipsSceneController must be preset");
+        }
+        playerN = app.getPlayerN();
+        grid = app.getBattle().grid[playerN];
+        shipTypes = app.getBattle().shipTypes;
+        nShipsLabels = new Label[app.getBattle().shipTypes.length];
+    }
 
     public static void preset(final App app1) {
         if(app1 == null) {
             throw new NullPointerException("App == null");
         }
         app = app1;
-        playerN = -1;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if(app == null) {
-            throw new IllegalStateException("ArrangeShipsSceneController must be preset");
-        }
-        playerN = (playerN + 1) % 2;
-        grid = app.getBattle().grid[playerN];
         header.setText(app.getBattle().playersNames[playerN] + ", расставьте свои корабли на поле");
-        gridHBox.setSpacing(app.getCellSize() * 2);
+        gridHBox.setSpacing(app.getCellSize());
         prepareBattleGrid(gameGrid, app.getBattle().grid[playerN].getSize(), app.getCellSize());
         setShipTypesGrid();
     }
 
     private void setShipTypesGrid() {
-        final ShipType[] shipTypes = app.getBattle().shipTypes;
         final int cellSize = app.getCellSize();
         final double height = cellSize * shipTypes.length;
         shipTypesGrid.setMinHeight(height);
@@ -73,7 +83,6 @@ public class ArrangeShipsSceneController implements Initializable {
         }
         maxShipLen *= cellSize;
         shapeCol.setMinWidth(maxShipLen);
-        shapeCol.setPrefWidth(maxShipLen);
         shapeCol.setMaxWidth(maxShipLen);
         nCol.setMinWidth(cellSize);
 
@@ -83,10 +92,11 @@ public class ArrangeShipsSceneController implements Initializable {
             button.getStyleClass().add("menu-button");
             button.setDisable(true);
             shipTypesGrid.add(button, 1, shipTypeN);
-            final Label nShipsLabel = getLabelForGrid(String.valueOf(shipTypes[shipTypeN].n()), cellSize);
-            shipTypesGrid.add(nShipsLabel, 2, shipTypeN);
+            nShipsLabels[shipTypeN] = getLabelForGrid("0", cellSize);
+            shipTypesGrid.add(nShipsLabels[shipTypeN], 2, shipTypeN);
+
             for(int shipN = 0; shipN < shipTypes[shipTypeN].n(); shipN++) {
-                shipTypesGrid.add(new Ship(shipTypes[shipTypeN], shipTypeN, nShipsLabel).display, 1, shipTypeN);
+                new Ship(shipTypeN).addToShipTypesGrid();
             }
         }
     }
@@ -104,110 +114,223 @@ public class ArrangeShipsSceneController implements Initializable {
         app.finishGame();
     }
 
+    private void updateDoneButtonDisable() {
+        for(int shipTypeN = 0; shipTypeN < shipTypes.length; shipTypeN++) {
+            if(Integer.parseInt(nShipsLabels[shipTypeN].getText()) != 0) {
+                setDoneButtonDisable(true);
+                return;
+            }
+        }
+        setDoneButtonDisable(false);
+    }
+
+    private void setDoneButtonDisable(final boolean disable) {
+        doneButton.setDisable(disable);
+    }
+
     private class Ship {
-        private final ShipType shipType;
-        private final int shipTypeRowN;
-        private final Label nShipsLabel;
+        private final int shipTypeN;
         private final Node display;
-        private final double initialTranslateX, initialTranslateY;
-        private Direction direction = DEFAULT_DIRECTION;
-        private State state = State.PASSIVE;
-        private Coordinate sternCoordinate, oldSternCoordinate;
-        private boolean located = false;
+        private final DragContext initialTranslate, dragContext = new DragContext();
+        private Direction direction = DEFAULT_DIRECTION, prevDirection;
+        private State state;
+        private Coordinate sternCoordinate, prevSternCoordinate;
+        private Location location;
+        // Если корабль, ранее установленный на поле, выходит за границы сетки, то размеры сетки изменяются с учётом
+        // выступающих частей корабля, что влияет на расчётные размеры ячейки -> координаты корабля
+        private Bounds gameGridBounds;
 
+        public Ship(final int shipTypeN) {
+            if(shipTypeN < 0) {
+                throw new IllegalArgumentException("shipTypeN(" + shipTypeN + ") < 0");
+            }
+            this.shipTypeN = shipTypeN;
+            display = getShip(getLength(), app.getCellSize());
+            initialTranslate = new DragContext(display.getTranslateX(), display.getTranslateY());
+            display.setOnMousePressed(mouseEvent -> {
+                dragContext.set(display.getTranslateX() - mouseEvent.getSceneX(),
+                        display.getTranslateY() - mouseEvent.getSceneY());
+                gameGridBounds = gameGrid.localToScene(gameGrid.getBoundsInLocal());
+                relocate(); //Чтобы избражение этого корабля было над другими
+                removeFromGrid();
+                setState(State.CORRECT);
+                mouseEvent.consume();
+            });
 
-        public Ship(final ShipType shipType, final int shipTypeRowN, final Label nShipsLabel) {
-            if(shipType == null) {
-                throw new NullPointerException("shipType == null");
-            }
-            this.shipType = shipType;
-            if(shipTypeRowN < 0) {
-                throw new IllegalArgumentException("shipTypeRowN(" + shipTypeRowN + ") < 0");
-            }
-            this.shipTypeRowN = shipTypeRowN;
-            if(nShipsLabel == null) {
-                throw new NullPointerException("nShipsLabel == null");
-            }
-            this.nShipsLabel = nShipsLabel;
-            display = getShip(shipType.len(), app.getCellSize());
-            initialTranslateX = display.getTranslateX();
-            initialTranslateY = display.getTranslateY();
-            //TODO Расставлять корабли на поле перетаскиванием
+            display.setOnMouseDragged(mouseEvent -> {
+                display.setTranslateX(dragContext.x + mouseEvent.getSceneX());
+                display.setTranslateY(dragContext.y + mouseEvent.getSceneY());
+                updateState(getCurrentCoordinate());
+                mouseEvent.consume();
+            });
+
+            display.setOnMouseReleased(mouseEvent -> {
+                if(!getState().isActive()) {
+                    throw new IllegalStateException();
+                }
+                final Coordinate currentCoordinate = getCurrentCoordinate();
+                relocate(currentCoordinate);
+                setInitialTranslate();
+                mouseEvent.consume();
+            });
         }
 
-        public boolean locate(final int sternCol, final int sternRow) throws Grid.ShipLocationException {
+        private Coordinate getCurrentCoordinate() {
+            final Bounds displayBounds = display.localToScene(display.getBoundsInLocal());
+            final double cellSize = gameGridBounds.getWidth() / (app.getBattle().grid[playerN].getSize() + 1),
+                    displayMinSize = Math.min(displayBounds.getHeight(), displayBounds.getWidth()),
+                    gameGridLeft = gameGridBounds.getMinX() + cellSize,
+                    gameGridTop  = gameGridBounds.getMinY() + cellSize,
+                    displaySternCenterX = displayBounds.getMinX() + displayMinSize / 2,
+                    displaySternCenterY = displayBounds.getMinY() + displayMinSize / 2;
+          /*if(displaySternCenterY < gameGridTop || gameGridBounds.getMaxY() < displaySternCenterY ||
+                    displaySternCenterX < gameGridLeft || gameGridBounds.getMaxX() < displaySternCenterX) {
+                return null;
+            }*/
+            final int sternColN = (int) Math.floor((displaySternCenterX - gameGridLeft) / cellSize),
+                    sternRowN = (int) Math.floor((displaySternCenterY - gameGridTop) / cellSize);
+            return (sternColN >= 0 && sternColN < 10 && sternRowN >= 0 && sternRowN < 10) ?
+                    new Coordinate(sternColN, sternRowN) : null;
+        }
+
+        private void updateState(final Coordinate coordinate) {
+            setState(isOkAddToGameGrid(coordinate) ? State.CORRECT : State.INCORRECT);
+        }
+
+        private void setInitialTranslate() {
+            display.setTranslateX(initialTranslate.x);
+            display.setTranslateY(initialTranslate.y);
+        }
+
+        private boolean relocate() {
+            return relocate(sternCoordinate);
+        }
+
+        private boolean relocate(final Coordinate coordinate) {
+            removeFromGameGrid();
             removeFromShipTypesGrid();
-            return addToGameGrid(sternCol, sternRow);
+            setState(State.PASSIVE);
+            if(coordinate == null) {
+                return addToShipTypesGrid();
+            }
+            else {
+                try {
+                    return addToGridAndGameGrid(coordinate);
+                } catch(Grid.ShipLocationException e) {
+                    return setToPrevLocation();
+                }
+            }
         }
 
-        private boolean relocate() throws Grid.ShipLocationException {
-            return relocate(sternCoordinate.col(), sternCoordinate.row());
-        }
-
-        private boolean relocate(final int sternCol, final int sternRow) throws Grid.ShipLocationException {
-            removeFromGameGrid();
-            return addToGameGrid(sternCol, sternRow);
-        }
-
-        public void remove() {
-            removeFromGameGrid();
-            addToShipTypesGrid();
-        }
-
-        private boolean addToGameGrid(final int sternCol, final int sternRow) throws Grid.ShipLocationException {
-            if(isLocated()) {
-                return relocate(sternCol, sternRow);
+        private boolean isOkAddToGameGrid(final Coordinate coordinate) {
+            if(coordinate == null) {
+                return false;
             }
             try {
-                grid.putProbableShip(sternCol, sternRow, shipType.len(), direction);
+                grid.putProbableShip(coordinate.col(), coordinate.row(), getLength(), getDirection());
             } catch(Grid.ShipLocationException e) {
-                setState(State.INCORRECT);
-                throw e;
+                return false;
+            } finally {
+                grid.removeProbableShip();
             }
-            sternCoordinate = new Coordinate(sternCol, sternRow);
-            grid.confirmProbableShip();
-            switch(getDirection()) {
-                case RIGHT -> gameGrid.add(display, sternCol, sternRow, shipType.len(), 1);
-                case DOWN -> gameGrid.add(display, sternCol, sternRow, 1, shipType.len());
-                case LEFT -> gameGrid.add(display, sternCol - shipType.len() + 1, sternRow, shipType.len(), 1);
-                case UP -> gameGrid.add(display, sternCol, sternRow - shipType.len() + 1, 1, shipType.len());
-            }
-            setState(State.PASSIVE);
-            setLocated(true);
             return true;
         }
 
-        private void removeFromGameGrid() {
-            if(isLocated()) {
+        private boolean addToGridAndGameGrid(final Coordinate coordinate) throws Grid.ShipLocationException {
+            if(coordinate == null || getLocation() == Location.GAME_GRID) {
+                return false;
+            }
+            grid.putProbableShip(coordinate.col(), coordinate.row(), getLength(), getDirection());
+            grid.confirmProbableShip();
+            sternCoordinate = coordinate;
+            switch(getDirection()) {
+                case RIGHT -> gameGrid.add(display, coordinate.col() + 1, coordinate.row() + 1, getLength(), 1);
+                case DOWN -> gameGrid.add(display, coordinate.col() + 1, coordinate.row() + 1, 1, getLength());
+                case LEFT -> gameGrid
+                        .add(display, coordinate.col() - getLength() + 2, coordinate.row() + 1, getLength(), 1);
+                case UP -> gameGrid
+                        .add(display, coordinate.col() + 1, coordinate.row() - getLength() + 2, 1, getLength());
+            }
+            setLocation(Location.GRID);
+            updateDoneButtonDisable();
+            prevDirection = null;
+            prevSternCoordinate = null;
+            return true;
+        }
+
+        private void removeFromGrid() {
+            if(getLocation() != Location.GRID) {
+                return;
+            }
+            try {
+                setLocation(Location.GAME_GRID);
                 try {
-                    try {
-                        grid.removeShip(sternCoordinate.col(), sternCoordinate.row());
-                    } catch(Grid.SelectedCellException e) {
-                        throw new RuntimeException("Корабль должен быть установлен в указанных координатах.", e);
-                    } finally {
-                        oldSternCoordinate = sternCoordinate;
-                        gameGrid.getChildren().remove(display);
-                        setLocated(false);
-                    }
+                    prevDirection = getDirection();
+                    prevSternCoordinate = sternCoordinate;
+                    setDoneButtonDisable(true);
+                    grid.removeShip(sternCoordinate.col(), sternCoordinate.row());
+                } catch(Grid.SelectedCellException e) {
+                    removeFromGameGrid();
+                    throw new RuntimeException("Корабль должен быть установлен в указанных координатах.", e);
+                } finally {
+                    sternCoordinate = null;
                 }
-                catch(Grid.RemovalShipException e) {
-                    throw new IllegalStateException("Невозможно удалить обстрелянный корабль.", e);
-                }
+            } catch(Grid.RemovalShipException e) {
+                throw new IllegalStateException("Невозможно удалить обстрелянный корабль.", e);
             }
         }
 
-        private void addToShipTypesGrid() {
+        private void removeFromGameGrid() {
+            if(getLocation() == null || !getLocation().onGrid()) {
+                return;
+            }
+            if(getLocation() == Location.GRID) {
+                removeFromGrid();
+            }
+            gameGrid.getChildren().remove(display);
+            setLocation(null);
+        }
+
+        private boolean addToShipTypesGrid() {
+            if(getLocation() == Location.SHIP_TYPES_GRID) {
+                return false;
+            }
             try {
                 setDirection(DEFAULT_DIRECTION);
             } catch(Grid.ShipLocationException ignored) { }
-            shipTypesGrid.add(display, 1, shipTypeRowN);
-            nShipsLabel.setText(String.valueOf(Integer.parseInt(nShipsLabel.getText()) + 1));
-            setState(State.PASSIVE);
+            shipTypesGrid.add(display, 1, shipTypeN);
+            nShipsLabels[shipTypeN].setText(String.valueOf(Integer.parseInt(nShipsLabels[shipTypeN].getText()) + 1));
+            setLocation(Location.SHIP_TYPES_GRID);
+            prevDirection = null;
+            prevSternCoordinate = sternCoordinate = null;
+            return true;
         }
 
         private void removeFromShipTypesGrid() {
+            if(getLocation() != Location.SHIP_TYPES_GRID) {
+                return;
+            }
             shipTypesGrid.getChildren().remove(display);
-            nShipsLabel.setText(String.valueOf(Integer.parseInt(nShipsLabel.getText()) - 1));
+            nShipsLabels[shipTypeN].setText(String.valueOf(Integer.parseInt(nShipsLabels[shipTypeN].getText()) - 1));
+            setLocation(null);
+        }
+
+        private boolean setToPrevLocation() {
+            if(prevSternCoordinate != null) {
+                try {
+                    setDirection(prevDirection != null ? prevDirection : DEFAULT_DIRECTION);
+                } catch(Grid.ShipLocationException ignored) { }
+                try {
+                    return addToGridAndGameGrid(prevSternCoordinate);
+                } catch(Grid.ShipLocationException shipLocationException) {
+                    throw new IllegalStateException("oldSternCoordinate must be correct", shipLocationException);
+                }
+            }
+            return addToShipTypesGrid();
+        }
+
+        private int getLength() {
+            return shipTypes[shipTypeN].len();
         }
 
         public Direction getDirection() {
@@ -218,7 +341,7 @@ public class ArrangeShipsSceneController implements Initializable {
             if(this.direction != direction) {
                 rotateDisplay(this.direction, direction);
                 this.direction = direction;
-                if(isLocated()) {
+                if(!getState().isActive() && getLocation() == Location.GRID) {
                     relocate();
                 }
             }
@@ -239,11 +362,11 @@ public class ArrangeShipsSceneController implements Initializable {
                     translateY = display.getTranslateX();
                 }
                 case LEFT -> {
-                    translateX = - display.getTranslateX();
+                    translateX = -display.getTranslateX();
                     translateY = display.getTranslateY();
                 }
                 case UP -> {
-                    translateX = - display.getTranslateY();
+                    translateX = -display.getTranslateY();
                     translateY = display.getTranslateX();
                 }
                 default -> throw new IllegalStateException("Unexpected value: " + oldDirection);
@@ -262,50 +385,38 @@ public class ArrangeShipsSceneController implements Initializable {
                 }
                 case LEFT -> {
                     display.setRotate(180);
-                    display.setTranslateX(- translateX);
+                    display.setTranslateX(-translateX);
                     display.setTranslateY(translateY);
                 }
                 case UP -> {
                     display.setRotate(270);
                     display.setTranslateX(translateY);
-                    display.setTranslateY(- translateX);
+                    display.setTranslateY(-translateX);
                 }
             }
         }
 
-        public Node getDisplay() {
-            return display;
-        }
-
-        private void setLocated(final boolean located) {
-            this.located = located;
-            if(!this.located) {
+        public void setLocation(final Location location) {
+            this.location = location;
+            if(this.location == Location.SHIP_TYPES_GRID) {
                 sternCoordinate = null;
             }
         }
 
-        public boolean isLocated() {
-            return located;
+        public Location getLocation() {
+            return location;
         }
 
         public void setState(State state) {
             if(this.state != state) {
-                if(state == State.PASSIVE) {
-                    if(this.state == State.INCORRECT) {
-                        if(oldSternCoordinate != null) {
-                            try {
-                                relocate(oldSternCoordinate.col(), oldSternCoordinate.row());
-                            } catch(Grid.ShipLocationException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
                 this.state = state;
-                display.getStyleClass().add(switch(this.state) {
-                    case PASSIVE -> "ok-ship";
-                    case ACTIVE -> "probable-ship";
-                    case INCORRECT -> "incorrect-ship";
+                ((Shape) display).setFill(switch(this.state) {
+                    case PASSIVE, CORRECT -> Color.LIGHTSLATEGREY;
+                    case INCORRECT -> Color.FIREBRICK;
+                });
+                display.setOpacity(switch(this.state) {
+                    case PASSIVE -> 1;
+                    case CORRECT, INCORRECT -> 0.7;
                 });
 
             }
@@ -315,8 +426,36 @@ public class ArrangeShipsSceneController implements Initializable {
             return state;
         }
 
+        private class DragContext {
+            double x;
+            double y;
+
+            public DragContext() {}
+
+            public DragContext(final double x, final double y) {
+                set(x, y);
+            }
+
+            public void set(final double x, final double y) {
+                this.x = x;
+                this.y = y;
+            }
+        }
+
         private enum State {
-            PASSIVE, ACTIVE, INCORRECT
+            PASSIVE, CORRECT, INCORRECT;
+
+            public boolean isActive() {
+                return this == CORRECT || this == INCORRECT;
+            }
+        }
+
+        private enum Location {
+            SHIP_TYPES_GRID, GRID, GAME_GRID;
+
+            public boolean onGrid() {
+                return this == GRID || this == GAME_GRID;
+            }
         }
     }
 }
