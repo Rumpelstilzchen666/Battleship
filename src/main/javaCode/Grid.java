@@ -327,19 +327,19 @@ public class Grid {
     }
 
     public static class ShipLocationException extends Exception {
-        public ShipLocationException(String message) {
+        public ShipLocationException(final String message) {
             super(message);
         }
     }
 
     public static class SelectedCellException extends Exception {
-        public SelectedCellException(String message) {
+        public SelectedCellException(final String message) {
             super(message);
         }
     }
 
     public static class RemovalShipException extends Exception {
-        public RemovalShipException(String message) {
+        public RemovalShipException(final String message) {
             super(message);
         }
     }

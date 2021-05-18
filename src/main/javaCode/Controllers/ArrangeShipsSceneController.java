@@ -53,11 +53,11 @@ public class ArrangeShipsSceneController implements Initializable {
         nShipsLabels = new Label[app.getBattle().shipTypes.length];
     }
 
-    public static void preset(final App app1) {
-        if(app1 == null) {
+    public static void preset(final App app) {
+        if(app == null) {
             throw new NullPointerException("App == null");
         }
-        app = app1;
+        ArrangeShipsSceneController.app = app;
     }
 
     @Override
@@ -72,7 +72,6 @@ public class ArrangeShipsSceneController implements Initializable {
         final int cellSize = app.getCellSize();
         final double height = cellSize * shipTypes.length;
         shipTypesGrid.setMinHeight(height);
-        shipTypesGrid.setPrefHeight(height);
         shipTypesGrid.setMaxHeight(height);
         shipTypesGrid.getRowConstraints().addAll(getRowConstraintsForGrid(shipTypes.length));
 
@@ -183,10 +182,6 @@ public class ArrangeShipsSceneController implements Initializable {
                     gameGridTop  = gameGridBounds.getMinY() + cellSize,
                     displaySternCenterX = displayBounds.getMinX() + displayMinSize / 2,
                     displaySternCenterY = displayBounds.getMinY() + displayMinSize / 2;
-          /*if(displaySternCenterY < gameGridTop || gameGridBounds.getMaxY() < displaySternCenterY ||
-                    displaySternCenterX < gameGridLeft || gameGridBounds.getMaxX() < displaySternCenterX) {
-                return null;
-            }*/
             final int sternColN = (int) Math.floor((displaySternCenterX - gameGridLeft) / cellSize),
                     sternRowN = (int) Math.floor((displaySternCenterY - gameGridTop) / cellSize);
             return (sternColN >= 0 && sternColN < 10 && sternRowN >= 0 && sternRowN < 10) ?

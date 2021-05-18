@@ -35,7 +35,7 @@ public class App extends Application {
                 Objects.requireNonNull(getClass().getResource(Settings.style.getFilePath())).toExternalForm());
         this.primaryStage.setScene(mainScene);
         this.primaryStage.setMaximized(true);
-        primaryStage.setResizable(false);
+        this.primaryStage.setResizable(false);
         MainMenuController.preset(this);
         setMainMenuScene();
         this.primaryStage.show();

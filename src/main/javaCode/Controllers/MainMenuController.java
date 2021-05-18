@@ -16,11 +16,11 @@ public class MainMenuController implements Initializable {
     @FXML
     private GridPane mainMenuGrid;
 
-    public static void preset(final App app1) {
-        if(app1 == null) {
+    public static void preset(final App app) {
+        if(app == null) {
             throw new NullPointerException("App == null");
         }
-        app = app1;
+        MainMenuController.app = app;
     }
 
     @Override
