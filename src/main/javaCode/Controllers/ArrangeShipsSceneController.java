@@ -411,7 +411,7 @@ public class ArrangeShipsSceneController implements Initializable {
             if(this.state != state) {
                 this.state = state;
                 ((Shape) display).setFill(switch(this.state) {
-                    case PASSIVE, CORRECT -> Color.LIGHTSLATEGREY;
+                    case PASSIVE, CORRECT -> new Color(144F / 255, 152F / 255, 160F / 255, 1F);
                     case INCORRECT -> Color.FIREBRICK;
                 });
                 display.setOpacity(switch(this.state) {

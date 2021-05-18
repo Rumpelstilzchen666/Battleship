@@ -24,7 +24,6 @@ public class AppUI {
         grid.setGridLinesVisible(true);
         final double width = cellSize * (nCols + 1), height = cellSize * (nRows + 1);
         grid.setMinSize(width, height);
-        grid.setPrefSize(width, height);
         grid.setMaxSize(width, height);
         grid.getColumnConstraints().addAll(getColumnConstraintsForGrid(nCols + 1));
         grid.getRowConstraints().addAll(getRowConstraintsForGrid(nRows + 1));
@@ -79,7 +78,7 @@ public class AppUI {
         final double shipWidth = cellSize - padding * 2;
         final Polygon ship = new Polygon(0, 0, shipLen * 3 / 4, 0, shipLen, shipWidth / 2,
                 shipLen * 3 / 4, shipWidth, 0, shipWidth);
-        ship.getStyleClass().addAll("ship", "ok-ship");
+        ship.getStyleClass().add("ship");
         return ship;
     }
 

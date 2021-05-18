@@ -3,21 +3,10 @@
 }
 
 .ship {
+  -fx-fill: #9098a0;
   -fx-background-color: transparent;
   -fx-stroke: black;
   -fx-stroke-width: 2;
-}
-
-.ok-ship {
-  -fx-fill: lightslategrey;
-}
-
-.probable-ship {
-  -fx-fill: #778999b2;
-}
-
-.incorrect-ship {
-  -fx-fill: firebrick;
 }
 
 .menu-button {
