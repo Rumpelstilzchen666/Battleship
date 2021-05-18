@@ -1,12 +1,14 @@
 package javaCode.Controllers;
 
 import javaCode.*;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -14,6 +16,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static javaCode.AppUI.*;
@@ -163,12 +167,24 @@ public class ArrangeShipsSceneController implements Initializable {
                 mouseEvent.consume();
             });
 
+            display.setOnScroll(scrollEvent -> {
+                final List<Direction> directionOrder =
+                        Arrays.asList(Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP);
+                final int directionN = directionOrder.indexOf(getDirection()),
+                        newDirectionN = (directionN + (scrollEvent.getDeltaY() < 0 ? 1 : (directionOrder.size() - 1))) %
+                                directionOrder.size();
+                setDirection(directionOrder.get(newDirectionN));
+                scrollEvent.consume();
+            });
+
             display.setOnMouseReleased(mouseEvent -> {
                 if(!getState().isActive()) {
                     throw new IllegalStateException();
                 }
-                final Coordinate currentCoordinate = getCurrentCoordinate();
-                relocate(currentCoordinate);
+                if(getLocation() == Location.SHIP_TYPES_GRID) {
+                    setDirection(DEFAULT_DIRECTION);
+                }
+                relocate(getCurrentCoordinate());
                 setInitialTranslate();
                 mouseEvent.consume();
             });
@@ -180,8 +196,18 @@ public class ArrangeShipsSceneController implements Initializable {
                     displayMinSize = Math.min(displayBounds.getHeight(), displayBounds.getWidth()),
                     gameGridLeft = gameGridBounds.getMinX() + cellSize,
                     gameGridTop  = gameGridBounds.getMinY() + cellSize,
-                    displaySternCenterX = displayBounds.getMinX() + displayMinSize / 2,
+                    displaySternCenterX, displaySternCenterY;
+            switch(getDirection()) {
+                case RIGHT, DOWN -> {
+                    displaySternCenterX = displayBounds.getMinX() + displayMinSize / 2;
                     displaySternCenterY = displayBounds.getMinY() + displayMinSize / 2;
+                }
+                case LEFT, UP -> {
+                    displaySternCenterX = displayBounds.getMaxX() - displayMinSize / 2;
+                    displaySternCenterY = displayBounds.getMaxY() - displayMinSize / 2;
+                }
+                default -> throw new IllegalStateException("Unexpected value: " + getDirection());
+            }
             final int sternColN = (int) Math.floor((displaySternCenterX - gameGridLeft) / cellSize),
                     sternRowN = (int) Math.floor((displaySternCenterY - gameGridTop) / cellSize);
             return (sternColN >= 0 && sternColN < 10 && sternRowN >= 0 && sternRowN < 10) ?
@@ -204,7 +230,6 @@ public class ArrangeShipsSceneController implements Initializable {
         private boolean relocate(final Coordinate coordinate) {
             removeFromGameGrid();
             removeFromShipTypesGrid();
-            setState(State.PASSIVE);
             if(coordinate == null) {
                 return addToShipTypesGrid();
             }
@@ -247,6 +272,7 @@ public class ArrangeShipsSceneController implements Initializable {
                         .add(display, coordinate.col() + 1, coordinate.row() - getLength() + 2, 1, getLength());
             }
             setLocation(Location.GRID);
+            setState(State.PASSIVE);
             updateDoneButtonDisable();
             prevDirection = null;
             prevSternCoordinate = null;
@@ -260,7 +286,6 @@ public class ArrangeShipsSceneController implements Initializable {
             try {
                 setLocation(Location.GAME_GRID);
                 try {
-                    prevDirection = getDirection();
                     prevSternCoordinate = sternCoordinate;
                     setDoneButtonDisable(true);
                     grid.removeShip(sternCoordinate.col(), sternCoordinate.row());
@@ -290,12 +315,11 @@ public class ArrangeShipsSceneController implements Initializable {
             if(getLocation() == Location.SHIP_TYPES_GRID) {
                 return false;
             }
-            try {
-                setDirection(DEFAULT_DIRECTION);
-            } catch(Grid.ShipLocationException ignored) { }
+            setDirection(DEFAULT_DIRECTION);
             shipTypesGrid.add(display, 1, shipTypeN);
             nShipsLabels[shipTypeN].setText(String.valueOf(Integer.parseInt(nShipsLabels[shipTypeN].getText()) + 1));
             setLocation(Location.SHIP_TYPES_GRID);
+            setState(State.PASSIVE);
             prevDirection = null;
             prevSternCoordinate = sternCoordinate = null;
             return true;
@@ -312,9 +336,7 @@ public class ArrangeShipsSceneController implements Initializable {
 
         private boolean setToPrevLocation() {
             if(prevSternCoordinate != null) {
-                try {
-                    setDirection(prevDirection != null ? prevDirection : DEFAULT_DIRECTION);
-                } catch(Grid.ShipLocationException ignored) { }
+                setDirection(prevDirection != null ? prevDirection : DEFAULT_DIRECTION);
                 try {
                     return addToGridAndGameGrid(prevSternCoordinate);
                 } catch(Grid.ShipLocationException shipLocationException) {
@@ -328,81 +350,39 @@ public class ArrangeShipsSceneController implements Initializable {
             return shipTypes[shipTypeN].len();
         }
 
-        public Direction getDirection() {
+        private Direction getDirection() {
             return direction;
         }
 
-        public void setDirection(final Direction direction) throws Grid.ShipLocationException {
-            if(this.direction != direction) {
-                rotateDisplay(this.direction, direction);
+        private void setDirection(final Direction direction) {
+            if(this.direction != direction && (getLocation() != Location.SHIP_TYPES_GRID || getState().isActive())) {
+                final Direction prevDirection = this.direction;
                 this.direction = direction;
+                switch(this.direction) {
+                    case RIGHT -> display.setRotate(0);
+                    case DOWN -> display.setRotate(90);
+                    case LEFT -> display.setRotate(180);
+                    case UP -> display.setRotate(270);
+                }
                 if(!getState().isActive() && getLocation() == Location.GRID) {
+                    this.prevDirection = prevDirection;
                     relocate();
                 }
             }
         }
 
-        private void rotateDisplay(final Direction oldDirection, final Direction newDirection) {
-            if(oldDirection == newDirection) {
-                return;
-            }
-            final double translateX, translateY;
-            switch(oldDirection) {
-                case RIGHT -> {
-                    translateX = display.getTranslateX();
-                    translateY = display.getTranslateY();
-                }
-                case DOWN -> {
-                    translateX = display.getTranslateY();
-                    translateY = display.getTranslateX();
-                }
-                case LEFT -> {
-                    translateX = -display.getTranslateX();
-                    translateY = display.getTranslateY();
-                }
-                case UP -> {
-                    translateX = -display.getTranslateY();
-                    translateY = display.getTranslateX();
-                }
-                default -> throw new IllegalStateException("Unexpected value: " + oldDirection);
-            }
-
-            switch(newDirection) {
-                case RIGHT -> {
-                    display.setRotate(0);
-                    display.setTranslateX(translateX);
-                    display.setTranslateY(translateY);
-                }
-                case DOWN -> {
-                    display.setRotate(90);
-                    display.setTranslateX(translateY);
-                    display.setTranslateY(translateX);
-                }
-                case LEFT -> {
-                    display.setRotate(180);
-                    display.setTranslateX(-translateX);
-                    display.setTranslateY(translateY);
-                }
-                case UP -> {
-                    display.setRotate(270);
-                    display.setTranslateX(translateY);
-                    display.setTranslateY(-translateX);
-                }
-            }
-        }
-
-        public void setLocation(final Location location) {
+        private void setLocation(final Location location) {
             this.location = location;
             if(this.location == Location.SHIP_TYPES_GRID) {
                 sternCoordinate = null;
             }
         }
 
-        public Location getLocation() {
+        private Location getLocation() {
             return location;
         }
 
-        public void setState(State state) {
+        private void setState(State state) {
             if(this.state != state) {
                 this.state = state;
                 ((Shape) display).setFill(switch(this.state) {
@@ -417,7 +397,7 @@ public class ArrangeShipsSceneController implements Initializable {
             }
         }
 
-        public State getState() {
+        private State getState() {
             return state;
         }
 
