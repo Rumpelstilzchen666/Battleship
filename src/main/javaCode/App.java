@@ -15,7 +15,6 @@ import java.util.Objects;
 
 public class App extends Application {
     private static final HashMap<String, ShipType[]> shipTypes = new HashMap<>();
-    private int playerN;
     private Stage primaryStage;
     private Battle battle;
     private final int cellSize = 50;
@@ -37,34 +36,19 @@ public class App extends Application {
         this.primaryStage.setMaximized(true);
         this.primaryStage.setResizable(false);
         MainMenuController.preset(this);
-        setMainMenuScene();
+        setScene("MainMenu");
         this.primaryStage.show();
-    }
-
-    private void setMainMenuScene() {
-        try {
-            primaryStage.getScene().setRoot(
-                    new FXMLLoader(getClass().getResource("/resources/layouts/MainMenu.fxml")).load());
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void startGame() {
         battle = new Battle(10, shipTypes.get("ruWiki"));
         ArrangeShipsSceneController.preset(this);
-        putShips(0);
+        putShips();
     }
 
-    public void putShips(final int playerN) {
-        this.playerN = playerN;
-        System.out.println(battle.playersNames[playerN] + " расставляет свои корабли.");
-        try {
-            primaryStage.getScene().setRoot(
-                    new FXMLLoader(getClass().getResource("/resources/layouts/arrangeShipsScene.fxml")).load());
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
+    public void putShips() {
+        System.out.println(battle.getPlayerName() + " расставляет свои корабли.");
+        setScene("ArrangeShipsScene");
     }
 
     public void startBattle() {
@@ -73,11 +57,17 @@ public class App extends Application {
 
     public void finishGame() {
         battle = null;
-        setMainMenuScene();
+        setScene("MainMenu");
     }
 
-    public int getPlayerN() {
-        return playerN;
+    private void setScene(final String fileName) {
+        try {
+            primaryStage.getScene().setRoot(
+                    FXMLLoader.load(getClass().getResource("/resources/layouts/" + fileName + ".fxml")));
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public Battle getBattle() {

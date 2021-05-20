@@ -1,14 +1,12 @@
 package javaCode.Controllers;
 
 import javaCode.*;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -16,9 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static javaCode.AppUI.*;
 
@@ -42,19 +38,20 @@ public class ArrangeShipsSceneController implements Initializable {
 
     private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
     private static App app;
-    private final int playerN;
+    private final Battle battle;
     private final Grid grid;
     private final ShipType[] shipTypes;
+    private final ArrayList<Ship> ships = new ArrayList<>();
     private final Label[] nShipsLabels;
 
     public ArrangeShipsSceneController() {
         if(app == null) {
             throw new IllegalStateException("ArrangeShipsSceneController must be preset");
         }
-        playerN = app.getPlayerN();
-        grid = app.getBattle().grid[playerN];
-        shipTypes = app.getBattle().shipTypes;
-        nShipsLabels = new Label[app.getBattle().shipTypes.length];
+        battle = app.getBattle();
+        grid = battle.getGrid();
+        shipTypes = battle.getShipTypes();
+        nShipsLabels = new Label[shipTypes.length];
     }
 
     public static void preset(final App app) {
@@ -66,9 +63,9 @@ public class ArrangeShipsSceneController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        header.setText(app.getBattle().playersNames[playerN] + ", расставьте свои корабли на поле");
+        header.setText(battle.getPlayerName() + ", расставьте свои корабли на поле");
         gridHBox.setSpacing(app.getCellSize());
-        prepareBattleGrid(gameGrid, app.getBattle().grid[playerN].getSize(), app.getCellSize());
+        prepareBattleGrid(gameGrid, grid.getSize(), app.getCellSize());
         setShipTypesGrid();
     }
 
@@ -99,16 +96,19 @@ public class ArrangeShipsSceneController implements Initializable {
             shipTypesGrid.add(nShipsLabels[shipTypeN], 2, shipTypeN);
 
             for(int shipN = 0; shipN < shipTypes[shipTypeN].n(); shipN++) {
-                new Ship(shipTypeN).addToShipTypesGrid();
+                ships.add(new Ship(shipTypeN));
+                ships.get(ships.size() - 1).addToShipTypesGrid();
             }
         }
+        ships.trimToSize();
     }
 
     @FXML
     private void forward() {
-        switch(playerN) {
-            case 0 -> app.putShips(1);
-            case 1 -> app.startBattle();
+        battle.nextPlayer();
+        switch(battle.getPlayerN()) {
+            case 1 -> app.putShips();
+            case 0 -> app.startBattle();
         }
     }
 
@@ -134,7 +134,7 @@ public class ArrangeShipsSceneController implements Initializable {
     private class Ship {
         private final int shipTypeN;
         private final Node display;
-        private final DragContext initialTranslate, dragContext = new DragContext();
+        private final DragContext dragContext = new DragContext();
         private Direction direction = DEFAULT_DIRECTION, prevDirection;
         private State state;
         private Coordinate sternCoordinate, prevSternCoordinate;
@@ -149,7 +149,6 @@ public class ArrangeShipsSceneController implements Initializable {
             }
             this.shipTypeN = shipTypeN;
             display = getShip(getLength(), app.getCellSize());
-            initialTranslate = new DragContext(display.getTranslateX(), display.getTranslateY());
             display.setOnMousePressed(mouseEvent -> {
                 dragContext.set(display.getTranslateX() - mouseEvent.getSceneX(),
                         display.getTranslateY() - mouseEvent.getSceneY());
@@ -192,7 +191,8 @@ public class ArrangeShipsSceneController implements Initializable {
 
         private Coordinate getCurrentCoordinate() {
             final Bounds displayBounds = display.localToScene(display.getBoundsInLocal());
-            final double cellSize = gameGridBounds.getWidth() / (app.getBattle().grid[playerN].getSize() + 1),
+            final int gridSize =  grid.getSize();
+            final double cellSize = gameGridBounds.getWidth() / (gridSize + 1),
                     displayMinSize = Math.min(displayBounds.getHeight(), displayBounds.getWidth()),
                     gameGridLeft = gameGridBounds.getMinX() + cellSize,
                     gameGridTop  = gameGridBounds.getMinY() + cellSize,
@@ -210,7 +210,7 @@ public class ArrangeShipsSceneController implements Initializable {
             }
             final int sternColN = (int) Math.floor((displaySternCenterX - gameGridLeft) / cellSize),
                     sternRowN = (int) Math.floor((displaySternCenterY - gameGridTop) / cellSize);
-            return (sternColN >= 0 && sternColN < 10 && sternRowN >= 0 && sternRowN < 10) ?
+            return (sternColN >= 0 && sternColN < gridSize && sternRowN >= 0 && sternRowN < gridSize) ?
                     new Coordinate(sternColN, sternRowN) : null;
         }
 
@@ -219,8 +219,8 @@ public class ArrangeShipsSceneController implements Initializable {
         }
 
         private void setInitialTranslate() {
-            display.setTranslateX(initialTranslate.x);
-            display.setTranslateY(initialTranslate.y);
+            display.setTranslateX(0);
+            display.setTranslateY(0);
         }
 
         private boolean relocate() {
@@ -350,7 +350,7 @@ public class ArrangeShipsSceneController implements Initializable {
             return shipTypes[shipTypeN].len();
         }
 
-        private Direction getDirection() {
+        public Direction getDirection() {
             return direction;
         }
 
@@ -404,12 +404,6 @@ public class ArrangeShipsSceneController implements Initializable {
         private class DragContext {
             double x;
             double y;
-
-            public DragContext() {}
-
-            public DragContext(final double x, final double y) {
-                set(x, y);
-            }
 
             public void set(final double x, final double y) {
                 this.x = x;
