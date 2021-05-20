@@ -105,6 +105,7 @@ public class ArrangeShipsSceneController implements Initializable {
 
     @FXML
     private void forward() {
+        addShipsToBattle();
         battle.nextPlayer();
         switch(battle.getPlayerN()) {
             case 1 -> app.putShips();
@@ -129,6 +130,11 @@ public class ArrangeShipsSceneController implements Initializable {
 
     private void setDoneButtonDisable(final boolean disable) {
         doneButton.setDisable(disable);
+    }
+
+    private void addShipsToBattle() {
+        ships.forEach(ship -> battle
+                .addShip(ship.shipTypeN, ship.getSternCoordinate(), ship.getDirection()));
     }
 
     private class Ship {
@@ -344,6 +350,10 @@ public class ArrangeShipsSceneController implements Initializable {
                 }
             }
             return addToShipTypesGrid();
+        }
+
+        public Coordinate getSternCoordinate() {
+            return sternCoordinate;
         }
 
         private int getLength() {
