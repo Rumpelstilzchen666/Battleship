@@ -186,9 +186,6 @@ public class ArrangeShipsSceneController implements Initializable {
                 if(!getState().isActive()) {
                     throw new IllegalStateException();
                 }
-                if(getLocation() == Location.SHIP_TYPES_GRID) {
-                    setDirection(DEFAULT_DIRECTION);
-                }
                 relocate(getCurrentCoordinate());
                 setInitialTranslate();
                 mouseEvent.consume();
@@ -292,6 +289,9 @@ public class ArrangeShipsSceneController implements Initializable {
             try {
                 setLocation(Location.GAME_GRID);
                 try {
+                    if(prevDirection == null) {
+                        prevDirection = getDirection();
+                    }
                     prevSternCoordinate = sternCoordinate;
                     setDoneButtonDisable(true);
                     grid.removeShip(sternCoordinate.col(), sternCoordinate.row());
