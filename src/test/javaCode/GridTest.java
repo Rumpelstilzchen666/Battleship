@@ -2,10 +2,12 @@ package javaCode;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.*;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -243,14 +245,14 @@ class GridTest {
                             throws Grid.ShipLocationException, Grid.SelectedCellException {
                         putDefaultProbableShip(len);
                         grid.confirmProbableShip();
-                        grid.fire(0, 0, new AtomicBoolean());
+                        grid.fire(0, 0);
                         assertThrows(Grid.RemovalShipException.class, () -> grid.removeShip(0,0));
                     }
                 }
 
                 @Test
                 void fire() throws Grid.SelectedCellException {
-                    assertTrue(grid.fire(0, 0, new AtomicBoolean()));
+                    assertEquals(grid.fire(0, 0), Grid.FireResult.HIT);
                 }
 
                 @ParameterizedTest
@@ -269,26 +271,9 @@ class GridTest {
                     grid.getGrid()[DEFAULT_SIZE - 1][DEFAULT_SIZE - 1] = cellState;
                     switch(cellState) {
                         case PROBABLE_SHIP -> assertThrows(IllegalStateException.class,
-                                () -> grid.fire(DEFAULT_SIZE - 1,DEFAULT_SIZE - 1, new AtomicBoolean()));
+                                () -> grid.fire(DEFAULT_SIZE - 1,DEFAULT_SIZE - 1));
                         case MISS, HIT, SUNK, AUREOLE -> assertThrows(Grid.SelectedCellException.class,
-                                () -> grid.fire(DEFAULT_SIZE - 1,DEFAULT_SIZE - 1, new AtomicBoolean()));
-                    }
-                }
-
-                @ParameterizedTest
-                @EnumSource
-                void throwsExceptionWhenKilledNullOnlyIfCellShipOrEmpty(Grid.CellState cellState) {
-                    grid.getGrid()[DEFAULT_SIZE - 1][DEFAULT_SIZE - 1] = cellState;
-                    if(cellState == Grid.CellState.SHIP || cellState == Grid.CellState.EMPTY) {
-                        assertThrows(NullPointerException.class,
-                                () -> grid.fire(DEFAULT_SIZE - 1,DEFAULT_SIZE - 1, null));
-                    }
-                    else {
-                        try {
-                            grid.fire(DEFAULT_SIZE - 1,DEFAULT_SIZE - 1, null);
-                        } catch(Exception e) {
-                            assertNotEquals(NullPointerException.class, e.getClass());
-                        }
+                                () -> grid.fire(DEFAULT_SIZE - 1,DEFAULT_SIZE - 1));
                     }
                 }
 
@@ -314,36 +299,34 @@ class GridTest {
 
                     @ParameterizedTest
                     @CsvSource({
-                            "0, 0,  true,  true",
-                            "2, 2, false, false",
-                            "2, 3, false, false",
-                            "2, 4, false, false",
-                            "3, 2, false, false",
-                            "3, 4, false, false",
-                            "4, 2, false, false",
-                            "4, 3, false, false",
-                            "4, 4, false, false",
-                            "3, 3,  true,  true",
-                            "6, 6, false, false",
-                            "9, 9,  true,  true",
-                            "0, 9,  true,  true",
-                            "9, 0,  true,  true",
-                            "1, 6,  true, false",
-                            "2, 6,  true, false",
-                            "3, 6,  true, false",
-                            "4, 6,  true,  true",
-                            "6, 1,  true, false",
-                            "6, 2,  true, false",
-                            "6, 3,  true, false",
-                            "6, 4,  true,  true",
-                            "2, 9,  true, false",
-                            "4, 9,  true, false",
-                            "6, 9,  true, false"
+                            "0, 0, SUNK",
+                            "2, 2, MISS",
+                            "2, 3, MISS",
+                            "2, 4, MISS",
+                            "3, 2, MISS",
+                            "3, 4, MISS",
+                            "4, 2, MISS",
+                            "4, 3, MISS",
+                            "4, 4, MISS",
+                            "3, 3, SUNK",
+                            "6, 6, MISS",
+                            "9, 9, SUNK",
+                            "0, 9, SUNK",
+                            "9, 0, SUNK",
+                            "1, 6,  HIT",
+                            "2, 6,  HIT",
+                            "3, 6,  HIT",
+                            "4, 6, SUNK",
+                            "6, 1,  HIT",
+                            "6, 2,  HIT",
+                            "6, 3,  HIT",
+                            "6, 4, SUNK",
+                            "2, 9,  HIT",
+                            "4, 9,  HIT",
+                            "6, 9,  HIT"
                     })
-                    void assertFireResult(final int col, final int row, final boolean expectedHit, final boolean expectedSunk) throws Grid.SelectedCellException {
-                        AtomicBoolean killed = new AtomicBoolean();
-                        assertEquals(grid.fire(col, row, killed), expectedHit);
-                        assertEquals(killed.get(), expectedSunk);
+                    void assertFireResult(final int col, final int row, final Grid.FireResult expectedResult) throws Grid.SelectedCellException {
+                        assertEquals(grid.fire(col, row), expectedResult);
                     }
 
                     @AfterAll

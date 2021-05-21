@@ -1,7 +1,6 @@
 package javaCode;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Grid {
     private final CellState[][] grid;
@@ -137,7 +136,7 @@ public class Grid {
         return new Coordinate(col, row);
     }
 
-    public boolean fire(final int col, final int row, final AtomicBoolean killed) throws SelectedCellException {
+    public FireResult fire(final int col, final int row) throws SelectedCellException {
         checkCoordinate(col);
         checkCoordinate(row);
         if(grid[row][col] == CellState.PROBABLE_SHIP) {
@@ -151,12 +150,11 @@ public class Grid {
         }
         if(grid[row][col].isVessel()) {
             grid[row][col] = CellState.HIT;
-            killed.set(shipKilled(col, row));
+            return shipKilled(col, row) ? FireResult.SUNK : FireResult.HIT;
         } else {
             grid[row][col] = CellState.MISS;
-            killed.set(false);
+            return FireResult.MISS;
         }
-        return grid[row][col] != CellState.MISS;
     }
 
     private boolean shipKilled(final int firedCol, final int firedRow) {
@@ -310,7 +308,11 @@ public class Grid {
         System.out.print(right + "\n");
     }
 
-    public enum CellState {
+    public enum FireResult {
+        MISS, HIT, SUNK
+    }
+
+    protected enum CellState {
         EMPTY, PROBABLE_SHIP, SHIP, MISS, HIT, SUNK, AUREOLE;
 
         public boolean isFired() {
