@@ -16,7 +16,7 @@ import javafx.scene.shape.Shape;
 import java.net.URL;
 import java.util.*;
 
-import static javaCode.AppUI.*;
+import static javaCode.GridUI.*;
 
 public class ArrangeShipsSceneController implements Initializable {
     @FXML

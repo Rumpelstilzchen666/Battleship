@@ -11,7 +11,7 @@ import javafx.scene.shape.Polygon;
 
 import java.util.Arrays;
 
-public class AppUI {
+public class GridUI {
     public static GridPane prepareBattleGrid(final GridPane grid, final int size, final int cellSize) {
         return prepareBattleGrid(grid, size, size, cellSize);
     }

@@ -9,7 +9,7 @@ import javafx.scene.layout.GridPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static javaCode.AppUI.*;
+import static javaCode.GridUI.*;
 
 public class MainMenuController implements Initializable {
     private static App app;
