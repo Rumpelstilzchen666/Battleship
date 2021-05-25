@@ -15,3 +15,7 @@
 .label {
   -fx-text-fill: aqua;
 }
+
+.error-label {
+  -fx-text-fill: red;
+}

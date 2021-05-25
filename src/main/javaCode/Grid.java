@@ -63,7 +63,7 @@ public class Grid {
         return probableShipOk = true;
     }
 
-    private Coordinate[] getShipCoordinates(final int sternCol, final int sternRow, final int len, final Direction dir) {
+    public static Coordinate[] getShipCoordinates(final int sternCol, final int sternRow, final int len, final Direction dir) {
         final Coordinate[] shipCoordinates = new Coordinate[len];
         for(int i = 0; i < len; i++) {
             shipCoordinates[i] = switch(dir) {
@@ -126,12 +126,22 @@ public class Grid {
         return true;
     }
 
-    private Coordinate getSternCoordinate(int col, int row) {
+    Coordinate getSternCoordinate(int col, int row) {
         while(col > 0 && grid[row][col - 1].isVessel()) {
             col--;
         }
         while(row > 0 && grid[row - 1][col].isVessel()) {
             row--;
+        }
+        return new Coordinate(col, row);
+    }
+
+    Coordinate getBowCoordinate(int col, int row) {
+        while(col < grid.length - 1 && grid[row][col + 1].isVessel()) {
+            col++;
+        }
+        while(row < grid.length - 1 && grid[row + 1][col].isVessel()) {
+            row++;
         }
         return new Coordinate(col, row);
     }
@@ -312,7 +322,7 @@ public class Grid {
         MISS, HIT, SUNK
     }
 
-    protected enum CellState {
+    public enum CellState {
         EMPTY, PROBABLE_SHIP, SHIP, MISS, HIT, SUNK, AUREOLE;
 
         public boolean isFired() {

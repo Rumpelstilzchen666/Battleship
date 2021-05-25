@@ -44,12 +44,13 @@ public class App extends Application {
     }
 
     public void putShips() {
-        System.out.println(battle.getPlayerName() + " расставляет свои корабли.");
+        System.out.println(battle.getPlayerName(true) + " расставляет свои корабли.");
         setScene("ArrangeShipsScene");
     }
 
     public void startBattle() {
         System.out.println("Бой начался!");
+        setScene("BattleScene");
     }
 
     public void finishGame() {
@@ -57,7 +58,7 @@ public class App extends Application {
         setScene("MainMenu");
     }
 
-    private void setScene(final String fileName) {
+    public void setScene(final String fileName) {
         try {
             primaryStage.getScene().setRoot(
                     FXMLLoader.load(getClass().getResource("/resources/layouts/" + fileName + ".fxml")));

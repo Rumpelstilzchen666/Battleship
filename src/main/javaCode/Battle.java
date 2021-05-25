@@ -32,8 +32,8 @@ public class Battle {
         zeroPlayer = true;
     }
 
-    public int getPlayerN() {
-        return zeroPlayer ? 0 : 1;
+    public int getPlayerN(final boolean present) {
+        return (zeroPlayer == present) ? 0 : 1;
     }
 
     public void nextPlayer() {
@@ -44,38 +44,51 @@ public class Battle {
         return shipTypes;
     }
 
-    public String getPlayerName() {
-        return playersNames[getPlayerN()];
+    public String getPlayerName(final boolean present) {
+        return playersNames[getPlayerN(present)];
     }
 
-    public Grid getGrid() {
-        return grid[getPlayerN()];
+    public Grid getGrid(final boolean present) {
+        return grid[getPlayerN(present)];
     }
 
-    public int[] getNShips() {
-        return nShips[getPlayerN()];
+    public int[] getNShips(final boolean present) {
+        return nShips[getPlayerN(present)];
     }
 
-    private ArrayList<Ship> getShips() {
-        return (getPlayerN() == 0 ? ships0 : ships1);
+    public ArrayList<Ship> getShips(final boolean present) {
+        return (getPlayerN(present) == 0 ? ships0 : ships1);
     }
 
     public void addShip(final int shipTypeN, final Coordinate sternCoordinate, final Direction direction) {
         if(shipTypeN < 0 || shipTypeN >= shipTypes.length) {
             throw new IndexOutOfBoundsException("Ship type number: " + shipTypeN + ", Size: " + shipTypes.length);
         }
-        if(getNShips()[shipTypeN] == shipTypes[shipTypeN].n()) {
+        if(getNShips(true)[shipTypeN] == shipTypes[shipTypeN].n()) {
             throw new IllegalStateException("Too many ships of this type");
         }
-        getNShips()[shipTypeN]++;
-        getShips().add(new Ship(shipTypes[shipTypeN], sternCoordinate, direction));
+        getNShips(true)[shipTypeN]++;
+        getShips(true).add(new Ship(shipTypes[shipTypeN], sternCoordinate, direction));
     }
 
-    public void fire(final int colN, final int rowN) throws Grid.ShipLocationException {
+    public Grid.FireResult fire(final Coordinate coordinate) throws Grid.SelectedCellException {
+        return getGrid(false).fire(coordinate.col(), coordinate.row());
     }
 
-    private record Ship(ShipType shipType, Coordinate sternCoordinate, Direction direction) {
-        private Ship {
+    public Ship getShip(final Coordinate coordinate) {
+        final Coordinate leftUpShipEndCoordinate = getGrid(false).getSternCoordinate(coordinate.col(), coordinate.row()),
+                rightDownShipEndCoordinate = getGrid(false).getBowCoordinate(coordinate.col(), coordinate.row());
+        for(Ship ship : getShips(false)) {
+            if(ship.sternCoordinate().equals(leftUpShipEndCoordinate) ||
+                    ship.sternCoordinate().equals(rightDownShipEndCoordinate)) {
+                return ship;
+            }
+        }
+        return null;
+    }
+
+    public record Ship(ShipType shipType, Coordinate sternCoordinate, Direction direction) {
+        public Ship {
             if(shipType == null) {
                 throw new NullPointerException();
             }

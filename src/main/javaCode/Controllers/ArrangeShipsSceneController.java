@@ -14,7 +14,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ResourceBundle;
 
 import static javaCode.GridUI.*;
 
@@ -45,7 +48,7 @@ public class ArrangeShipsSceneController implements Initializable {
 
     public ArrangeShipsSceneController() {
         battle = Settings.getApp().getBattle();
-        grid = battle.getGrid();
+        grid = battle.getGrid(true);
         shipTypes = battle.getShipTypes();
         nShipsLabels = new Label[shipTypes.length];
     }
@@ -96,9 +99,9 @@ public class ArrangeShipsSceneController implements Initializable {
     private void forward() {
         addShipsToBattle();
         battle.nextPlayer();
-        switch(battle.getPlayerN()) {
-            case 1 -> Settings.getApp().putShips();
-            case 0 -> Settings.getApp().startBattle();
+        switch(battle.getPlayerN(false)) {
+            case 0 -> Settings.getApp().putShips();
+            case 1 -> Settings.getApp().startBattle();
         }
     }
 
@@ -122,8 +125,7 @@ public class ArrangeShipsSceneController implements Initializable {
     }
 
     private void addShipsToBattle() {
-        ships.forEach(ship -> battle
-                .addShip(ship.shipTypeN, ship.getSternCoordinate(), ship.getDirection()));
+        ships.forEach(ship -> battle.addShip(ship.shipTypeN, ship.getSternCoordinate(), ship.getDirection()));
     }
 
     private class Ship {
@@ -255,14 +257,7 @@ public class ArrangeShipsSceneController implements Initializable {
             grid.putProbableShip(coordinate.col(), coordinate.row(), getLength(), getDirection());
             grid.confirmProbableShip();
             sternCoordinate = coordinate;
-            switch(getDirection()) {
-                case RIGHT -> gameGrid.add(display, coordinate.col() + 1, coordinate.row() + 1, getLength(), 1);
-                case DOWN -> gameGrid.add(display, coordinate.col() + 1, coordinate.row() + 1, 1, getLength());
-                case LEFT -> gameGrid
-                        .add(display, coordinate.col() - getLength() + 2, coordinate.row() + 1, getLength(), 1);
-                case UP -> gameGrid
-                        .add(display, coordinate.col() + 1, coordinate.row() - getLength() + 2, 1, getLength());
-            }
+            addShipToGrid(gameGrid, display, sternCoordinate, getLength(), getDirection());
             setLocation(Location.GRID);
             setState(State.PASSIVE);
             updateDoneButtonDisable();
@@ -330,15 +325,15 @@ public class ArrangeShipsSceneController implements Initializable {
         }
 
         private boolean setToPrevLocation() {
-            if(prevSternCoordinate != null) {
-                setDirection(prevDirection != null ? prevDirection : DEFAULT_DIRECTION);
-                try {
-                    return addToGridAndGameGrid(prevSternCoordinate);
-                } catch(Grid.ShipLocationException shipLocationException) {
-                    throw new IllegalStateException("oldSternCoordinate must be correct", shipLocationException);
-                }
+            if(prevSternCoordinate == null) {
+                return addToShipTypesGrid();
             }
-            return addToShipTypesGrid();
+            setDirection(prevDirection != null ? prevDirection : DEFAULT_DIRECTION);
+            try {
+                return addToGridAndGameGrid(prevSternCoordinate);
+            } catch(Grid.ShipLocationException shipLocationException) {
+                throw new IllegalStateException("oldSternCoordinate must be correct", shipLocationException);
+            }
         }
 
         public Coordinate getSternCoordinate() {
@@ -357,12 +352,7 @@ public class ArrangeShipsSceneController implements Initializable {
             if(this.direction != direction && (getLocation() != Location.SHIP_TYPES_GRID || getState().isActive())) {
                 final Direction prevDirection = this.direction;
                 this.direction = direction;
-                switch(this.direction) {
-                    case RIGHT -> display.setRotate(0);
-                    case DOWN -> display.setRotate(90);
-                    case LEFT -> display.setRotate(180);
-                    case UP -> display.setRotate(270);
-                }
+                rotateShip(display, this.direction);
                 if(!getState().isActive() && getLocation() == Location.GRID) {
                     this.prevDirection = prevDirection;
                     relocate();
