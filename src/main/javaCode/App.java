@@ -1,7 +1,5 @@
 package javaCode;
 
-import javaCode.Controllers.ArrangeShipsSceneController;
-import javaCode.Controllers.MainMenuController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,9 +15,10 @@ public class App extends Application {
     private static final HashMap<String, ShipType[]> shipTypes = new HashMap<>();
     private Stage primaryStage;
     private Battle battle;
-    private final int cellSize = 50;
 
-    public App() { }
+    public App() {
+        Settings.app = this;
+    }
 
     @Override
     public void start(final Stage primaryStage) {
@@ -35,14 +34,12 @@ public class App extends Application {
         this.primaryStage.setScene(mainScene);
         this.primaryStage.setMaximized(true);
         this.primaryStage.setResizable(false);
-        MainMenuController.preset(this);
         setScene("MainMenu");
         this.primaryStage.show();
     }
 
     public void startGame() {
         battle = new Battle(10, shipTypes.get("ruWiki"));
-        ArrangeShipsSceneController.preset(this);
         putShips();
     }
 
@@ -72,10 +69,6 @@ public class App extends Application {
 
     public Battle getBattle() {
         return battle;
-    }
-
-    public int getCellSize() {
-        return cellSize;
     }
 
     public static void main(String[] args) {

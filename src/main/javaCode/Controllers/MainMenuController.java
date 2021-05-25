@@ -1,6 +1,6 @@
 package javaCode.Controllers;
 
-import javaCode.App;
+import javaCode.Settings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -12,22 +12,11 @@ import java.util.ResourceBundle;
 import static javaCode.GridUI.*;
 
 public class MainMenuController implements Initializable {
-    private static App app;
     @FXML
     private GridPane mainMenuGrid;
 
-    public static void preset(final App app) {
-        if(app == null) {
-            throw new NullPointerException("App == null");
-        }
-        MainMenuController.app = app;
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if(app == null) {
-            throw new IllegalStateException("MainMenuController must be preset");
-        }
         setMainMenuGrid();
     }
 
@@ -49,7 +38,7 @@ public class MainMenuController implements Initializable {
             button.setStyle("-fx-font-size: " + cellSize / 4 + ';');
             button.setPrefSize(shipWidth, shipHeight);
             switch(rowN) {
-                case 0 -> button.setOnAction(actionEvent -> app.startGame());
+                case 0 -> button.setOnAction(actionEvent -> Settings.getApp().startGame());
                 case 3 -> button.setOnAction(actionEvent -> System.exit(0));
                 default -> button.setOnAction(null);
             }

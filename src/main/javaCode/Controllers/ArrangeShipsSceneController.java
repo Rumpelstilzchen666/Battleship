@@ -37,7 +37,6 @@ public class ArrangeShipsSceneController implements Initializable {
     private Button doneButton;
 
     private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
-    private static App app;
     private final Battle battle;
     private final Grid grid;
     private final ShipType[] shipTypes;
@@ -45,32 +44,22 @@ public class ArrangeShipsSceneController implements Initializable {
     private final Label[] nShipsLabels;
 
     public ArrangeShipsSceneController() {
-        if(app == null) {
-            throw new IllegalStateException("ArrangeShipsSceneController must be preset");
-        }
-        battle = app.getBattle();
+        battle = Settings.getApp().getBattle();
         grid = battle.getGrid();
         shipTypes = battle.getShipTypes();
         nShipsLabels = new Label[shipTypes.length];
     }
 
-    public static void preset(final App app) {
-        if(app == null) {
-            throw new NullPointerException("App == null");
-        }
-        ArrangeShipsSceneController.app = app;
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        header.setText(battle.getPlayerName() + ", расставьте свои корабли на поле");
-        gridHBox.setSpacing(app.getCellSize());
-        prepareBattleGrid(gameGrid, grid.getSize(), app.getCellSize());
+        header.setText(battle.getPlayerName(true) + ", расставьте свои корабли на поле");
+        gridHBox.setSpacing(Settings.getCellSize());
+        prepareBattleGrid(gameGrid, grid.getSize(), Settings.getCellSize());
         setShipTypesGrid();
     }
 
     private void setShipTypesGrid() {
-        final int cellSize = app.getCellSize();
+        final int cellSize = Settings.getCellSize();
         final double height = cellSize * shipTypes.length;
         shipTypesGrid.setMinHeight(height);
         shipTypesGrid.setMaxHeight(height);
@@ -108,14 +97,14 @@ public class ArrangeShipsSceneController implements Initializable {
         addShipsToBattle();
         battle.nextPlayer();
         switch(battle.getPlayerN()) {
-            case 1 -> app.putShips();
-            case 0 -> app.startBattle();
+            case 1 -> Settings.getApp().putShips();
+            case 0 -> Settings.getApp().startBattle();
         }
     }
 
     @FXML
     private void finish() {
-        app.finishGame();
+        Settings.getApp().finishGame();
     }
 
     private void updateDoneButtonDisable() {
@@ -154,7 +143,7 @@ public class ArrangeShipsSceneController implements Initializable {
                 throw new IllegalArgumentException("shipTypeN(" + shipTypeN + ") < 0");
             }
             this.shipTypeN = shipTypeN;
-            display = getShip(getLength(), app.getCellSize());
+            display = getShip(getLength(), Settings.getCellSize());
             display.setOnMousePressed(mouseEvent -> {
                 dragContext.set(display.getTranslateX() - mouseEvent.getSceneX(),
                         display.getTranslateY() - mouseEvent.getSceneY());
