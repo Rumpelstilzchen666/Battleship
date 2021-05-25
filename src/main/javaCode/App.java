@@ -50,7 +50,7 @@ public class App extends Application {
 
     public void startBattle() {
         System.out.println("Бой начался!");
-        setScene("BattleScene");
+        setScene("PlayersBarrier");
     }
 
     public void finishGame() {

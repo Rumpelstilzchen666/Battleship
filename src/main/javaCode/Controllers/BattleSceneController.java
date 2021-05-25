@@ -122,7 +122,7 @@ public class BattleSceneController implements Initializable {
     @FXML
     private void forward() {
         battle.nextPlayer();
-        Settings.getApp().setScene("BattleScene");
+        Settings.getApp().setScene("PlayersBarrier");
     }
 
     @FXML
