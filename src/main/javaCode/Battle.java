@@ -72,7 +72,17 @@ public class Battle {
     }
 
     public Grid.FireResult fire(final Coordinate coordinate) throws Grid.SelectedCellException {
-        return getGrid(false).fire(coordinate.col(), coordinate.row());
+        Grid.FireResult fireResult = getGrid(false).fire(coordinate.col(), coordinate.row());
+        if(fireResult == Grid.FireResult.SUNK) {
+            ShipType shipType = getShip(coordinate).shipType();
+            for(int shipTypeN = 0; shipTypeN < shipTypes.length; shipTypeN++) {
+                if(shipTypes[shipTypeN] == shipType) {
+                    getNShips(false)[shipTypeN]--;
+                    break;
+                }
+            }
+        }
+        return fireResult;
     }
 
     public Ship getShip(final Coordinate coordinate) {

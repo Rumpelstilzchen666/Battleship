@@ -5,19 +5,16 @@
 <BorderPane styleClass="background" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="javaCode.Controllers.BattleSceneController">
   <top>
-    <Label id="header" fx:id="header" styleClass="game-label" BorderPane.alignment="TOP_CENTER"
-           text="Игрок, ваш ход"/>
+    <Label id="header" fx:id="header" styleClass="game-label" BorderPane.alignment="TOP_CENTER" text="Игрок, ваш ход"/>
   </top>
   <center>
     <HBox id="grid-h-box" fx:id="gridHBox" alignment="CENTER">
       <VBox id="mine-grid-v-box" fx:id="mineGridVBox" alignment="TOP_CENTER">
-        <Label id="mine-grid-header" fx:id="mineGridHeader" styleClass="grid-label"
-               text="Ваше поле"/>
+        <Label id="mine-grid-header" fx:id="mineGridHeader" styleClass="grid-label" text="Ваше поле"/>
         <GridPane id="mine-game-grid" fx:id="mineGameGrid" styleClass="grid" gridLinesVisible="true"/>
       </VBox>
       <VBox id="enemy-grid-v-box" fx:id="enemyGridVBox" alignment="TOP_CENTER">
-        <Label id="enemy-grid-header" fx:id="enemyGridHeader" styleClass="grid-label"
-               text="Вражеское поле"/>
+        <Label id="enemy-grid-header" fx:id="enemyGridHeader" styleClass="grid-label" text="Вражеское поле"/>
         <GridPane id="enemy-game-grid" fx:id="enemyGameGrid" styleClass="grid" gridLinesVisible="true"/>
       </VBox>
     </HBox>

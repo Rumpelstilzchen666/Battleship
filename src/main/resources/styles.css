@@ -4,6 +4,10 @@
   -fx-padding: 50 0 80;
 }
 
+.label {
+  -fx-text-alignment: center;
+}
+
 .game-label {
   -fx-font-size: 64;
   -fx-font-weight: bold;

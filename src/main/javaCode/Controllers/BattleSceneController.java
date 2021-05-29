@@ -30,28 +30,32 @@ public class BattleSceneController implements Initializable {
     private Button doneButton;
 
     private final Battle battle;
-    private boolean fired;
+    private boolean missed;
 
     public BattleSceneController() {
         battle = Settings.getApp().getBattle();
-        fired = false;
+        missed = false;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         header.setText(Settings.getApp().getBattle().getPlayerName(true) + ", ваш ход");
-        setGameGrid(mineGameGrid, true);
-        setGameGrid(enemyGameGrid, false);
+        setGameGrid(true);
+        setGameGrid(false);
     }
 
-    private void setGameGrid(GridPane gameGrid, final boolean mine) {
+    private void setGameGrid(final boolean mine) {
+        setGameGrid((mine ? mineGameGrid : enemyGameGrid), mine, mine);
+    }
+
+    private void setGameGrid(GridPane gameGrid, final boolean mine, final boolean displayAll) {
         final int gridSize = battle.getGrid(mine).getSize();
         final int cellSize = Settings.getCellSize();
         prepareBattleGrid(gameGrid, gridSize, cellSize);
-        final ArrayList<Battle.Ship> ships  = battle.getShips(mine);
+        final ArrayList<Battle.Ship> ships = battle.getShips(mine);
         final Grid.CellState[][] grid = battle.getGrid(mine).getGrid();
         for(Battle.Ship ship : ships) {
-            if(mine || grid[ship.sternCoordinate().row()][ship.sternCoordinate().col()] == Grid.CellState.SUNK) {
+            if(displayAll || grid[ship.sternCoordinate().row()][ship.sternCoordinate().col()] == Grid.CellState.SUNK) {
                 addShipToGrid(gameGrid, Settings.getCellSize(), ship.sternCoordinate(), ship.shipType().len(),
                         ship.direction());
             }
@@ -62,7 +66,7 @@ public class BattleSceneController implements Initializable {
                     case MISS, AUREOLE -> gameGrid.add(getFireMark(cellSize, false), col + 1, row + 1);
                     case HIT, SUNK -> gameGrid.add(getFireMark(cellSize, true), col + 1, row + 1);
                 }
-                if(!mine) {
+                if(!displayAll) {
                     final Button cellButton = new Button();
                     cellButton.getStyleClass().add("cell-button");
                     cellButton.setMinSize(cellSize, cellSize);
@@ -76,8 +80,7 @@ public class BattleSceneController implements Initializable {
     }
 
     private void fire(final Coordinate coordinate) {
-        System.out.println(coordinate);
-        if(fired) {
+        if(missed) {
             return;
         }
         final Grid.FireResult fireResult;
@@ -93,19 +96,30 @@ public class BattleSceneController implements Initializable {
                     coordinate.col() + 1, coordinate.row() + 1);
         }
         if(fireResult == Grid.FireResult.SUNK) {
+            boolean endBattle = true;
+            for(int nShips : battle.getNShips(false)) {
+                if(nShips != 0) {
+                    endBattle = false;
+                    break;
+                }
+            }
             enemyGameGrid.getColumnConstraints().clear();
             enemyGameGrid.getRowConstraints().clear();
             enemyGameGrid.getChildren().clear();
-            setGameGrid(enemyGameGrid, false);
-            final Battle.Ship ship = battle.getShip(coordinate);
-            setResultLabel(ship.shipType().name() + " противника потоплен!", false);
+            setGameGrid(enemyGameGrid, false, endBattle);
+            setResultLabel(battle.getShip(coordinate).shipType().name() + " противника потоплен!", false);
+            if(endBattle) {
+                resultLabel.setText(
+                        resultLabel.getText() + "\nИгра окончена. " + battle.getPlayerName(true) + " победил!");
+                doneButton.setOnAction(actionEvent -> finish());
+                doneButton.setDisable(false);
+            }
         }
 
         if(fireResult == Grid.FireResult.MISS) {
-            fired = true;
+            missed = true;
             doneButton.setDisable(false);
         }
-        battle.getGrid(false).printGrid(true);
     }
 
     private void setResultLabel(final String text, final boolean error) {
@@ -113,8 +127,7 @@ public class BattleSceneController implements Initializable {
         ObservableList<String> styleClasses = resultLabel.getStyleClass();
         if(error && !styleClasses.get(styleClasses.size() - 1).equals("error-label")) {
             styleClasses.add("error-label");
-        }
-        else if(!error && styleClasses.get(styleClasses.size() - 1).equals("error-label")) {
+        } else if(!error && styleClasses.get(styleClasses.size() - 1).equals("error-label")) {
             styleClasses.remove(styleClasses.size() - 1);
         }
     }
