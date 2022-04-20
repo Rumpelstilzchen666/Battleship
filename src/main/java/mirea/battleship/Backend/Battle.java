@@ -1,4 +1,4 @@
-package javaCode;
+package mirea.battleship.Backend;
 
 import java.util.ArrayList;
 import java.util.Arrays;

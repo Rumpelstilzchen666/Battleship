@@ -1,6 +1,7 @@
-package javaCode.Controllers;
+package mirea.battleship.Controllers;
 
-import javaCode.*;
+import mirea.battleship.Backend.*;
+import mirea.battleship.Settings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
@@ -18,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-
-import static javaCode.GridUI.*;
 
 public class ArrangeShipsSceneController implements Initializable {
     @FXML
@@ -57,7 +56,7 @@ public class ArrangeShipsSceneController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         header.setText(battle.getPlayerName(true) + ", расставьте свои корабли на поле");
         gridHBox.setSpacing(Settings.getCellSize());
-        prepareBattleGrid(gameGrid, grid.getSize(), Settings.getCellSize());
+        GridUI.prepareBattleGrid(gameGrid, grid.getSize(), Settings.getCellSize());
         setShipTypesGrid();
     }
 
@@ -66,7 +65,7 @@ public class ArrangeShipsSceneController implements Initializable {
         final double height = cellSize * shipTypes.length;
         shipTypesGrid.setMinHeight(height);
         shipTypesGrid.setMaxHeight(height);
-        shipTypesGrid.getRowConstraints().addAll(getRowConstraintsForGrid(shipTypes.length));
+        shipTypesGrid.getRowConstraints().addAll(GridUI.getRowConstraintsForGrid(shipTypes.length));
 
         nameCol.setMinWidth(cellSize);
         int maxShipLen = 0;
@@ -79,12 +78,12 @@ public class ArrangeShipsSceneController implements Initializable {
         nCol.setMinWidth(cellSize);
 
         for(int shipTypeN = 0; shipTypeN < shipTypes.length; shipTypeN++) {
-            shipTypesGrid.add(getLabelForGrid(shipTypes[shipTypeN].name(), cellSize), 0, shipTypeN);
-            final Button button = new Button(null, getShip(shipTypes[shipTypeN].len(), cellSize));
+            shipTypesGrid.add(GridUI.getLabelForGrid(shipTypes[shipTypeN].name(), cellSize), 0, shipTypeN);
+            final Button button = new Button(null, GridUI.getShip(shipTypes[shipTypeN].len(), cellSize));
             button.getStyleClass().add("menu-button");
             button.setDisable(true);
             shipTypesGrid.add(button, 1, shipTypeN);
-            nShipsLabels[shipTypeN] = getLabelForGrid("0", cellSize);
+            nShipsLabels[shipTypeN] = GridUI.getLabelForGrid("0", cellSize);
             shipTypesGrid.add(nShipsLabels[shipTypeN], 2, shipTypeN);
 
             for(int shipN = 0; shipN < shipTypes[shipTypeN].n(); shipN++) {
@@ -145,7 +144,7 @@ public class ArrangeShipsSceneController implements Initializable {
                 throw new IllegalArgumentException("shipTypeN(" + shipTypeN + ") < 0");
             }
             this.shipTypeN = shipTypeN;
-            display = getShip(getLength(), Settings.getCellSize());
+            display = GridUI.getShip(getLength(), Settings.getCellSize());
             display.setOnMousePressed(mouseEvent -> {
                 dragContext.set(display.getTranslateX() - mouseEvent.getSceneX(),
                         display.getTranslateY() - mouseEvent.getSceneY());
@@ -257,7 +256,7 @@ public class ArrangeShipsSceneController implements Initializable {
             grid.putProbableShip(coordinate.col(), coordinate.row(), getLength(), getDirection());
             grid.confirmProbableShip();
             sternCoordinate = coordinate;
-            addShipToGrid(gameGrid, display, sternCoordinate, getLength(), getDirection());
+            GridUI.addShipToGrid(gameGrid, display, sternCoordinate, getLength(), getDirection());
             setLocation(Location.GRID);
             setState(State.PASSIVE);
             updateDoneButtonDisable();
@@ -352,7 +351,7 @@ public class ArrangeShipsSceneController implements Initializable {
             if(this.direction != direction && (getLocation() != Location.SHIP_TYPES_GRID || getState().isActive())) {
                 final Direction prevDirection = this.direction;
                 this.direction = direction;
-                rotateShip(display, this.direction);
+                GridUI.rotateShip(display, this.direction);
                 if(!getState().isActive() && getLocation() == Location.GRID) {
                     this.prevDirection = prevDirection;
                     relocate();

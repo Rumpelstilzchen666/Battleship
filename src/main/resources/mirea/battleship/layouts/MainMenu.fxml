@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox alignment="TOP_CENTER" styleClass="background" xmlns="http://javafx.com/javafx/11.0.1"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaCode.Controllers.MainMenuController">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="mirea.battleship.Controllers.MainMenuController">
   <Label id="main-label" fx:id="mainLabel" text="Морской бой"/>
   <GridPane id="main-menu-grid" fx:id="mainMenuGrid" alignment="TOP_CENTER" gridLinesVisible="true">
   </GridPane>

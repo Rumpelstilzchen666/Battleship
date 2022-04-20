@@ -1,6 +1,6 @@
-package javaCode.Controllers;
+package mirea.battleship.Controllers;
 
-import javaCode.Settings;
+import mirea.battleship.Settings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -9,7 +9,7 @@ import javafx.scene.layout.GridPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static javaCode.GridUI.*;
+import static mirea.battleship.Controllers.GridUI.*;
 
 public class MainMenuController implements Initializable {
     @FXML

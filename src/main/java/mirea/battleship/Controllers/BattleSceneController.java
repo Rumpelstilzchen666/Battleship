@@ -1,9 +1,7 @@
-package javaCode.Controllers;
+package mirea.battleship.Controllers;
 
-import javaCode.Battle;
-import javaCode.Coordinate;
-import javaCode.Grid;
-import javaCode.Settings;
+import mirea.battleship.Backend.*;
+import mirea.battleship.Settings;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,7 +13,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-import static javaCode.GridUI.*;
+import static mirea.battleship.Controllers.GridUI.*;
 
 public class BattleSceneController implements Initializable {
     @FXML

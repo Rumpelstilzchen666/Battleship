@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane styleClass="background" xmlns="http://javafx.com/javafx/11.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaCode.Controllers.ArrangeShipsSceneController">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="mirea.battleship.Controllers.ArrangeShipsSceneController">
   <top>
     <Label id="header" fx:id="header" styleClass="game-label" BorderPane.alignment="TOP_CENTER"
            text="Игрок, расставьте свои корабли на поле"/>

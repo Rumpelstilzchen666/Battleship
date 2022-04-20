@@ -1,6 +1,7 @@
-package javaCode;
+package mirea.battleship.Backend;
 
 import java.util.ArrayList;
+import mirea.battleship.Settings;
 
 public class Grid {
     private final CellState[][] grid;

@@ -1,4 +1,4 @@
-package javaCode;
+package mirea.battleship;
 
 public class Settings {
     public static final boolean USE_CORNERS = false, SHOW_MY_AUREOLE = true, SHOW_ENEMY_AUREOLE = true;
@@ -19,7 +19,7 @@ public class Settings {
         private final String filePath;
 
         Style(String fileName) {
-            this.filePath = "/resources/" + fileName + ".css";
+            this.filePath = "/mirea/battleship/" + fileName + ".css";
         }
 
         public String getFilePath() {

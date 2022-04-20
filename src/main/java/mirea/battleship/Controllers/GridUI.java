@@ -1,5 +1,7 @@
-package javaCode;
+package mirea.battleship.Controllers;
 
+import mirea.battleship.Backend.Coordinate;
+import mirea.battleship.Backend.Direction;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;

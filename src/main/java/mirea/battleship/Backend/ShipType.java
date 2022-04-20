@@ -1,4 +1,4 @@
-package javaCode;
+package mirea.battleship.Backend;
 
 public record ShipType(String name, int n, int len) {
     public ShipType {

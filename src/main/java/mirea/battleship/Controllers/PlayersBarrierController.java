@@ -1,6 +1,6 @@
-package javaCode.Controllers;
+package mirea.battleship.Controllers;
 
-import javaCode.Settings;
+import mirea.battleship.Settings;
 
 public class PlayersBarrierController {
 
