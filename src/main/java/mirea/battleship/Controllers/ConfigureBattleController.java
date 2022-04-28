@@ -157,12 +157,7 @@ public class ConfigureBattleController implements Initializable {
 
     private void updateGridSize() {
         gridSize = gridSizeSpinner.getValue();
-        gameGrid.getColumnConstraints().clear();
-        gameGrid.getRowConstraints().clear();
-        gameGrid.getChildren().clear();
-        //Иначе сетка исчезает
-        gameGrid.setGridLinesVisible(false);
-        gameGrid.setGridLinesVisible(true);
+        GridUI.cleanGrid(gameGrid);
         GridUI.prepareBattleGrid(gameGrid, gridSize, Settings.getCellSize());
         updateShipTypesGrid();
     }

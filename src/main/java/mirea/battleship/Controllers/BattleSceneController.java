@@ -101,9 +101,7 @@ public class BattleSceneController implements Initializable {
                     break;
                 }
             }
-            enemyGameGrid.getColumnConstraints().clear();
-            enemyGameGrid.getRowConstraints().clear();
-            enemyGameGrid.getChildren().clear();
+            cleanGrid(enemyGameGrid);
             setGameGrid(enemyGameGrid, false, endBattle);
             setResultLabel(battle.getShip(coordinate).shipType().name() + " противника потоплен!", false);
             if(endBattle) {

@@ -79,11 +79,23 @@ public class GridUI {
         return label;
     }
 
+    public static void cleanGrid(final GridPane grid) {
+        if(grid != null) {
+            grid.getColumnConstraints().clear();
+            grid.getRowConstraints().clear();
+            grid.getChildren().clear();
+            //Иначе сетка исчезает
+            grid.setGridLinesVisible(false);
+            grid.setGridLinesVisible(true);
+        }
+    }
+
     public static Polygon getShip(final int widthInCells, final int cellSize) {
-        final double padding = cellSize * PADDING_RATIO, shipLen = cellSize * widthInCells - padding * 2,
-                shipWidth = cellSize - padding * 2;
-        final Polygon ship = new Polygon(0, 0, shipLen * (1 - BOW_RATIO), 0, shipLen, shipWidth / 2,
-                shipLen * (1 - BOW_RATIO), shipWidth, 0, shipWidth);
+        final double padding = cellSize * PADDING_RATIO, shipLen = cellSize * widthInCells - padding * 2, shipWidth =
+                cellSize - padding * 2;
+        final Polygon ship =
+                new Polygon(0, 0, shipLen * (1 - BOW_RATIO), 0, shipLen, shipWidth / 2, shipLen * (1 - BOW_RATIO),
+                        shipWidth, 0, shipWidth);
         ship.getStyleClass().add("ship");
         return ship;
     }
