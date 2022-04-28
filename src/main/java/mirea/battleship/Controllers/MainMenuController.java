@@ -38,7 +38,7 @@ public class MainMenuController implements Initializable {
             button.setStyle("-fx-font-size: " + cellSize / 4 + ';');
             button.setPrefSize(shipWidth, shipHeight);
             switch(rowN) {
-                case 0 -> button.setOnAction(actionEvent -> Settings.getApp().startGame());
+                case 0 -> button.setOnAction(actionEvent -> Settings.getApp().configureBattle());
                 case 3 -> button.setOnAction(actionEvent -> System.exit(0));
                 default -> button.setOnAction(null);
             }

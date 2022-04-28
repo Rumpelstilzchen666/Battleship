@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class App extends Application {
-    private static final HashMap<String, ShipType[]> shipTypes = new HashMap<>();
+    static final HashMap<String, ShipType[]> shipTypes = new HashMap<>();
     private Stage primaryStage;
     private Battle battle;
 
@@ -39,8 +39,13 @@ public class App extends Application {
         this.primaryStage.show();
     }
 
-    public void startGame() {
-        battle = new Battle(10, shipTypes.get("ruWiki"));
+    public void configureBattle() {
+        System.out.println("Настройки боя.");
+        setScene("ConfigureBattle");
+    }
+
+    public void startGame(final BattleSet battleSet) {
+        battle = new Battle(battleSet);
         putShips();
     }
 

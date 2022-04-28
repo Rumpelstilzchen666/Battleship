@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="540" prefWidth="960" styleClass="background"
+            xmlns="http://javafx.com/javafx/11.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="mirea.battleship.Controllers.ConfigureBattleController">
+  <top>
+    <Label id="header" fx:id="header" styleClass="game-label" text="Настройки боя" BorderPane.alignment="TOP_CENTER"/>
+  </top>
+  <center>
+    <HBox id="grid-h-box" fx:id="gridHBox" alignment="CENTER" spacing="30">
+      <GridPane id="game-grid" fx:id="gameGrid"/>
+      <GridPane id="ship-types-grid" fx:id="shipTypesGrid" alignment="TOP_CENTER" gridLinesVisible="true">
+        <columnConstraints>
+          <ColumnConstraints fx:id="nameCol" halignment="CENTER" hgrow="NEVER"/>
+          <ColumnConstraints fx:id="shapeCol" halignment="CENTER" hgrow="NEVER"/>
+          <ColumnConstraints fx:id="lenCol" halignment="CENTER" hgrow="NEVER"/>
+          <ColumnConstraints fx:id="nCol" halignment="CENTER" hgrow="NEVER"/>
+        </columnConstraints>
+      </GridPane>
+    </HBox>
+  </center>
+  <bottom>
+    <VBox id="bottom-v-box" fx:id="bottomVBox" alignment="BOTTOM_CENTER">
+      <HBox alignment="BOTTOM_CENTER" minHeight="30">
+        <Spinner id="grid-size-spinner" fx:id="gridSizeSpinner" min="2" max="15" promptText="Размер поля"/>
+      </HBox>
+      <ButtonBar styleClass="action-button">
+        <buttons>
+          <Button id="done-button" fx:id="doneButton" onAction="#forward" styleClass="done-button"
+                  text="_Сохранить настройки" ButtonBar.buttonData="OK_DONE"/>
+          <Button id="cancel-button" fx:id="cancelButton" onAction="#finish" styleClass="cancel-button" text="_Выход"
+                  ButtonBar.buttonData="CANCEL_CLOSE"/>
+        </buttons>
+      </ButtonBar>
+    </VBox>
+  </bottom>
+</BorderPane>

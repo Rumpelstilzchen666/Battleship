@@ -13,16 +13,16 @@ public class Battle {
     private final ArrayList<Ship> ships1;
     private boolean zeroPlayer;
 
-    public Battle(final int size, final ShipType[] shipTypes) {
-        grid = new Grid[]{new Grid(size), new Grid(size)};
-        if(shipTypes == null) {
+    public Battle(final BattleSet battleSet) {
+        grid = new Grid[]{new Grid(battleSet.gridSize()), new Grid(battleSet.gridSize())};
+        if(battleSet.shipTypes() == null) {
             throw new NullPointerException("shipTypes == null");
         }
-        if(shipTypes.length == 0) {
+        if(battleSet.shipTypes().length == 0) {
             throw new IllegalArgumentException("shipTypes.length == 0");
         }
         //TODO Проверить что корабли входят на поле
-        this.shipTypes = shipTypes;
+        this.shipTypes = battleSet.shipTypes();
         nShips[0] = new int[this.shipTypes.length];
         nShips[1] = nShips[0].clone();
         final int[] nShips = {0};
