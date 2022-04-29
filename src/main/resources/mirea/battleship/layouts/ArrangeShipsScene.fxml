@@ -3,15 +3,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="background" xmlns="http://javafx.com/javafx/11.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="mirea.battleship.Controllers.ArrangeShipsSceneController">
+<BorderPane styleClass="background" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="mirea.battleship.Controllers.ArrangeShipsSceneController">
   <top>
     <Label id="header" fx:id="header" styleClass="game-label" BorderPane.alignment="TOP_CENTER"
            text="Игрок, расставьте свои корабли на поле"/>
   </top>
   <center>
     <HBox id="grid-h-box" fx:id="gridHBox" alignment="CENTER">
-      <GridPane id="game-grid" fx:id="gameGrid" styleClass="grid" gridLinesVisible="true"/>
+      <GridPane id="game-grid" fx:id="gameGrid"/>
       <GridPane id="ship-types-grid" fx:id="shipTypesGrid" alignment="TOP_CENTER" gridLinesVisible="true">
         <columnConstraints>
           <ColumnConstraints fx:id="nameCol" halignment="CENTER" hgrow="NEVER"/>

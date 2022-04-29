@@ -12,7 +12,7 @@
     <HBox id="grid-h-box" fx:id="gridHBox" alignment="CENTER">
       <VBox id="mine-grid-v-box" fx:id="mineGridVBox" alignment="TOP_CENTER">
         <Label id="mine-grid-header" fx:id="mineGridHeader" styleClass="grid-label" text="Ваше поле"/>
-        <GridPane id="mine-game-grid" fx:id="mineGameGrid" styleClass="grid" gridLinesVisible="true"/>
+        <GridPane id="mine-game-grid" fx:id="mineGameGrid"/>
       </VBox>
       <VBox id="enemy-grid-v-box" fx:id="enemyGridVBox" alignment="TOP_CENTER">
         <Label id="enemy-grid-header" fx:id="enemyGridHeader" styleClass="grid-label" text="Вражеское поле"/>
