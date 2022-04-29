@@ -74,7 +74,7 @@ public class GridUI {
     public static Label getLabelForGrid(final String text, final int cellSize) {
         Label label = new Label(text);
         label.getStyleClass().add("grid-label");
-        label.setStyle("-fx-font-size: " + cellSize / 3 + ';');
+        label.setStyle("-fx-font-size: " + cellSize * 0.33 + ';');
         label.setPadding(new Insets(cellSize * 0.1));
         return label;
     }

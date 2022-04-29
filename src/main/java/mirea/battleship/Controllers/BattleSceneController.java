@@ -1,5 +1,6 @@
 package mirea.battleship.Controllers;
 
+import javafx.scene.layout.HBox;
 import mirea.battleship.Backend.*;
 import mirea.battleship.Settings;
 import javafx.collections.ObservableList;
@@ -16,6 +17,8 @@ import java.util.ResourceBundle;
 import static mirea.battleship.Controllers.GridUI.*;
 
 public class BattleSceneController implements Initializable {
+    @FXML
+    private HBox gridHBox;
     @FXML
     private Label header;
     @FXML
@@ -37,6 +40,7 @@ public class BattleSceneController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        gridHBox.setSpacing(Settings.getCellSize());
         header.setText(Settings.getApp().getBattle().getPlayerName(true) + ", ваш ход");
         setGameGrid(true);
         setGameGrid(false);
@@ -54,7 +58,7 @@ public class BattleSceneController implements Initializable {
         final Grid.CellState[][] grid = battle.getGrid(mine).getGrid();
         for(Battle.Ship ship : ships) {
             if(displayAll || grid[ship.sternCoordinate().row()][ship.sternCoordinate().col()] == Grid.CellState.SUNK) {
-                addShipToGrid(gameGrid, Settings.getCellSize(), ship.sternCoordinate(), ship.shipType().len(),
+                addShipToGrid(gameGrid, cellSize, ship.sternCoordinate(), ship.shipType().len(),
                         ship.direction());
             }
         }

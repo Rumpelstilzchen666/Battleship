@@ -62,7 +62,7 @@ public class ConfigureBattleController implements Initializable {
         addShipTypeButton.setMinHeight(Settings.getCellSize());
         addShipTypeButton.setMaxHeight(Settings.getCellSize());
         addShipTypeButton.getStyleClass().addAll("label", "grid", "grid-label");
-        addShipTypeButton.setStyle("-fx-font-size: " + Settings.getCellSize() / 3 + ';');
+        addShipTypeButton.setStyle("-fx-font-size: " + Settings.getCellSize() * 0.33 + ';');
         addShipTypeButton.setMaxWidth(Double.MAX_VALUE);
 
         gridSizeSpinner.setMinWidth(Settings.getCellSize());

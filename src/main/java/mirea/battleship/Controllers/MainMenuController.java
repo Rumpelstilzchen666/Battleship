@@ -38,8 +38,14 @@ public class MainMenuController implements Initializable {
             button.setStyle("-fx-font-size: " + cellSize / 4 + ';');
             button.setPrefSize(shipWidth, shipHeight);
             switch(rowN) {
-                case 0 -> button.setOnAction(actionEvent -> Settings.getApp().configureBattle());
-                case 3 -> button.setOnAction(actionEvent -> System.exit(0));
+                case 0 -> {
+                    button.setOnAction(actionEvent -> Settings.getApp().configureBattle());
+                    button.setDefaultButton(true);
+                }
+                case 3 -> {
+                    button.setOnAction(actionEvent -> System.exit(0));
+                    button.setCancelButton(true);
+                }
                 default -> button.setOnAction(null);
             }
             mainMenuGrid.add(button, (nCols - buttonWidthInCells) / 2 + 1, rowN + 1, buttonWidthInCells, 1);
