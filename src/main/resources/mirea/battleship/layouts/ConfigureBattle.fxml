@@ -3,8 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="540" prefWidth="960" styleClass="background"
-            xmlns="http://javafx.com/javafx/11.1" xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane styleClass="background" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="mirea.battleship.Controllers.ConfigureBattleController">
   <top>
     <Label id="header" fx:id="header" styleClass="game-label" text="Настройки боя" BorderPane.alignment="TOP_CENTER"/>
@@ -12,14 +11,18 @@
   <center>
     <HBox id="grid-h-box" fx:id="gridHBox" alignment="CENTER" spacing="30">
       <GridPane id="game-grid" fx:id="gameGrid"/>
-      <GridPane id="ship-types-grid" fx:id="shipTypesGrid" alignment="TOP_CENTER" gridLinesVisible="true">
-        <columnConstraints>
-          <ColumnConstraints fx:id="nameCol" halignment="CENTER" hgrow="NEVER"/>
-          <ColumnConstraints fx:id="shapeCol" halignment="CENTER" hgrow="NEVER"/>
-          <ColumnConstraints fx:id="lenCol" halignment="CENTER" hgrow="NEVER"/>
-          <ColumnConstraints fx:id="nCol" halignment="CENTER" hgrow="NEVER"/>
-        </columnConstraints>
-      </GridPane>
+      <VBox id="ship-types-v-box" fx:id="shipTypesVBox" alignment="CENTER" HBox.hgrow="NEVER">
+        <GridPane id="ship-types-grid" fx:id="shipTypesGrid" alignment="TOP_CENTER" gridLinesVisible="true">
+          <columnConstraints>
+            <ColumnConstraints fx:id="nameCol" halignment="CENTER" hgrow="NEVER"/>
+            <ColumnConstraints fx:id="shapeCol" halignment="CENTER" hgrow="NEVER"/>
+            <ColumnConstraints fx:id="lenCol" halignment="CENTER" hgrow="NEVER"/>
+            <ColumnConstraints fx:id="nCol" halignment="CENTER" hgrow="NEVER"/>
+          </columnConstraints>
+        </GridPane>
+        <Button id="add-ship-type-button" fx:id="addShipTypeButton" onAction="#addShipType"
+                  text="_Добавить тип кораблей"/>
+      </VBox>
     </HBox>
   </center>
   <bottom>

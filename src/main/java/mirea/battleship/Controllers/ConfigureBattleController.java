@@ -2,7 +2,9 @@ package mirea.battleship.Controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -36,23 +38,14 @@ public class ConfigureBattleController implements Initializable {
     @FXML
     private ColumnConstraints nCol;
     @FXML
+    private Button addShipTypeButton;
+    @FXML
     private Spinner<Integer> gridSizeSpinner;
     @FXML
     private Button doneButton;
 
     private final ArrayList<ShipType> shipTypes = new ArrayList<>();
     private int gridSize;
-    //Update TextField value if new text parsed as Integer
-    private final UnaryOperator<TextFormatter.Change> intFilter = c -> {
-        if(c.isContentChange()) {
-            ParsePosition parsePosition = new ParsePosition(0);
-            NumberFormat.getIntegerInstance().parse(c.getControlNewText(), parsePosition);
-            if(parsePosition.getIndex() == 0 || parsePosition.getIndex() < c.getControlNewText().length()) {
-                return null;
-            }
-        }
-        return c;
-    };
 
     public ConfigureBattleController() {
         //TODO Добавить выбор набора
@@ -65,6 +58,12 @@ public class ConfigureBattleController implements Initializable {
         gridHBox.setSpacing(Settings.getCellSize());
         GridUI.prepareBattleGrid(gameGrid, gridSize, Settings.getCellSize());
         setShipTypesGrid();
+
+        addShipTypeButton.setMinHeight(Settings.getCellSize());
+        addShipTypeButton.setMaxHeight(Settings.getCellSize());
+        addShipTypeButton.getStyleClass().addAll("label", "grid", "grid-label");
+        addShipTypeButton.setStyle("-fx-font-size: " + Settings.getCellSize() / 3 + ';');
+        addShipTypeButton.setMaxWidth(Double.MAX_VALUE);
 
         gridSizeSpinner.setMinWidth(Settings.getCellSize());
         gridSizeSpinner.setPrefWidth(Settings.getCellSize() * 2);
@@ -79,12 +78,23 @@ public class ConfigureBattleController implements Initializable {
         });*/
     }
 
+    //Update TextField value if new text parsed as Integer
     private TextFormatter<Integer> getIntegerTextFormatter(final int defaultValue) {
+        final UnaryOperator<TextFormatter.Change> intFilter = c -> {
+            if(c.isContentChange()) {
+                ParsePosition parsePosition = new ParsePosition(0);
+                NumberFormat.getIntegerInstance().parse(c.getControlNewText(), parsePosition);
+                if(parsePosition.getIndex() == 0 || parsePosition.getIndex() < c.getControlNewText().length()) {
+                    return null;
+                }
+            }
+            return c;
+        };
         return new TextFormatter<>(new IntegerStringConverter(), defaultValue, intFilter);
     }
 
     private void setShipTypesGrid() {
-        final int cellSize = Settings.getCellSize(), nRows = shipTypes.size() + 2;
+        final int cellSize = Settings.getCellSize(), nRows = shipTypes.size() + 1;
         final double height = cellSize * nRows;
         shipTypesGrid.setMinHeight(height);
         shipTypesGrid.setMaxHeight(height);
@@ -121,26 +131,22 @@ public class ConfigureBattleController implements Initializable {
             shipTypesGrid.add(lenShipsSpinner, 2, shipTypeN + 1);
 
             final Spinner<Integer> nShipsSpinner =
-                    getSpinner(0, getMaxShipsOnGrid(shipTypes.get(shipTypeN).len()), shipTypes.get(shipTypeN).n());
+                    getSpinner(-1, getMaxShipsOnGrid(shipTypes.get(shipTypeN).len()), shipTypes.get(shipTypeN).n());
             nShipsSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
                 if(!Objects.equals(oldValue, newValue)) {
-                    shipTypes.set(finalShipTypeN, new ShipType(shipTypes.get(finalShipTypeN).name(), newValue,
-                            shipTypes.get(finalShipTypeN).len()));
-                    doneButton.setDisable(!isBattleSetPlayable());
+                    if(newValue < 0) {
+                        shipTypes.remove(finalShipTypeN);
+                        updateShipTypesGrid();
+                    }
+                    else {
+                        shipTypes.set(finalShipTypeN, new ShipType(shipTypes.get(finalShipTypeN).name(), newValue,
+                                shipTypes.get(finalShipTypeN).len()));
+                        doneButton.setDisable(!isBattleSetPlayable());
+                    }
                 }
             });
             shipTypesGrid.add(nShipsSpinner, 3, shipTypeN + 1);
         }
-        final Button addShipTypeButton = new Button("+");
-        addShipTypeButton.setMinHeight(cellSize);
-        addShipTypeButton.setMaxHeight(cellSize);
-        addShipTypeButton.setMinWidth(shipTypesGrid.localToScene(shipTypesGrid.getBoundsInLocal()).getWidth());
-        addShipTypeButton.setOnAction(actionEvent -> {
-            shipTypes.add(new ShipType(null, 1, 1));
-            updateShipTypesGrid();
-        });
-        shipTypesGrid.add(addShipTypeButton, 0, nRows - 1, 4, 1);
-
         doneButton.setDisable(!isBattleSetPlayable());
     }
 
@@ -192,6 +198,12 @@ public class ConfigureBattleController implements Initializable {
 
     private int getGridWithAureoleArea() {
         return (gridSize + 1) * (gridSize + 1);
+    }
+
+    @FXML
+    private void addShipType() {
+        shipTypes.add(new ShipType(null, 1, 1));
+        updateShipTypesGrid();
     }
 
     @FXML
