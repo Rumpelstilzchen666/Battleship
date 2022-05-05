@@ -1,13 +1,24 @@
 package mirea.battleship.Backend;
 
-import java.util.ArrayList;
 import mirea.battleship.Settings;
 
+import java.util.ArrayList;
+
+/** Внутреннее представление игрового поля. */
 public class Grid {
+    /** Матрица grid используется для хранения информации о состоянии ячеек игрового поля. */
     private final CellState[][] grid;
+    /** Список probableShipCoordinates используется для хранения координат, занимаемых планируемым кораблём. */
     private final ArrayList<Coordinate> probableShipCoordinates = new ArrayList<>();
+    /** Свойство probableShipOk используется для указания того, можно ли сохранить планируемый корабль. */
     private boolean probableShipOk;
 
+    /**
+     * Создаёт пустое игровое поле размера {@code size}.
+     *
+     * @param size размер игрового поля.
+     * @throws IllegalArgumentException если некорректный размер игрового поля ({@code size < 1}).
+     */
     public Grid(final int size) {
         if(size < 1) { throw new IllegalArgumentException("size(" + size + ") < 1"); }
         this.grid = new CellState[size][size];
@@ -18,6 +29,20 @@ public class Grid {
         }
     }
 
+    /**
+     * Пытается поместить планируемый корабль на игровое поле.
+     *
+     * @param sternCol номер столбца, где расположена корма планируемого корабля.
+     * @param sternRow номер строки, где расположена корма планируемого корабля.
+     * @param len      длина планируемого корабля.
+     * @param dir      направление носа планируемого корабля.
+     * @return {@code true} если планируемый корабль поставлен на игровое поле.
+     * @throws IndexOutOfBoundsException если строка или столбец, где расположена корма планируемого корабля, вне
+     *                                   игрового поля.
+     * @throws IllegalArgumentException  если некорректная длина планируемого корабля ({@code len < 1}).
+     * @throws NullPointerException      если {@code dir == null}.
+     * @throws ShipLocationException     если планируемый корабль невозможно поставить на игровое поле.
+     */
     public boolean putProbableShip(final int sternCol, final int sternRow, final int len, final Direction dir)
             throws ShipLocationException {
         checkCoordinate(sternCol);
@@ -64,6 +89,15 @@ public class Grid {
         return probableShipOk = true;
     }
 
+    /**
+     * Определяет координаты корабля на игровом поле.
+     *
+     * @param sternCol номер столбца, где расположена корма корабля.
+     * @param sternRow номер строки, где расположена корма корабля.
+     * @param len      длина корабля.
+     * @param dir      направление носа корабля.
+     * @return массив координат корабля.
+     */
     public static Coordinate[] getShipCoordinates(final int sternCol, final int sternRow, final int len, final Direction dir) {
         final Coordinate[] shipCoordinates = new Coordinate[len];
         for(int i = 0; i < len; i++) {
@@ -77,6 +111,9 @@ public class Grid {
         return shipCoordinates;
     }
 
+    /**
+     * Удаляет планируемый корабль с игрового поля.
+     */
     public void removeProbableShip() {
         for(Coordinate probableShipCoordinate : probableShipCoordinates) {
             grid[probableShipCoordinate.row()][probableShipCoordinate.col()] = CellState.EMPTY;
@@ -84,6 +121,12 @@ public class Grid {
         probableShipCoordinates.clear();
     }
 
+    /**
+     * Сохраняет планируемый корабль на игровом поле.
+     *
+     * @return {@code true} если планируемый корабль успешно сохранён на игровом поле.
+     * @throws ShipLocationException если планируемый корабль невозможно сохранить на игровом поле.
+     */
     public boolean confirmProbableShip() throws ShipLocationException {
         if(probableShipCoordinates.isEmpty()) {
             return false;
@@ -98,6 +141,15 @@ public class Grid {
         return true;
     }
 
+    /**
+     * Удаляет корабль с игрового поля.
+     *
+     * @param col номер столбца, где расположен корабль.
+     * @param row номер строки, где расположен корабль.
+     * @return {@code true} если корабль успешно удалён с игрового поля.
+     * @throws SelectedCellException если на указанных координатах нет корабля.
+     * @throws RemovalShipException  если корабль на указанных координатах невозможно удалить.
+     */
     public boolean removeShip(final int col, final int row) throws SelectedCellException, RemovalShipException {
         checkCoordinate(col);
         checkCoordinate(row);
@@ -127,6 +179,13 @@ public class Grid {
         return true;
     }
 
+    /**
+     * Определяет координату левого верхнего конца корабля.
+     *
+     * @param col номер столбца, где расположен корабль.
+     * @param row номер строки, где расположен корабль.
+     * @return координату левого верхнего конца корабля.
+     */
     Coordinate getSternCoordinate(int col, int row) {
         while(col > 0 && grid[row][col - 1].isVessel()) {
             col--;
@@ -137,6 +196,13 @@ public class Grid {
         return new Coordinate(col, row);
     }
 
+    /**
+     * Определяет координату правого нижнего конца корабля.
+     *
+     * @param col номер столбца, где расположен корабль.
+     * @param row номер строки, где расположен корабль.
+     * @return координату правого нижнего конца корабля.
+     */
     Coordinate getBowCoordinate(int col, int row) {
         while(col < grid.length - 1 && grid[row][col + 1].isVessel()) {
             col++;
@@ -147,6 +213,14 @@ public class Grid {
         return new Coordinate(col, row);
     }
 
+    /**
+     * Вызывается, чтобы произвести выстрел по игровому полю.
+     *
+     * @param col номер столбца, куда производится выстрел.
+     * @param row номер строки, куда производится выстрел.
+     * @return результат выстрела.
+     * @throws SelectedCellException если по указанным координатам невозможно произвести выстрел.
+     */
     public FireResult fire(final int col, final int row) throws SelectedCellException {
         checkCoordinate(col);
         checkCoordinate(row);
@@ -168,6 +242,14 @@ public class Grid {
         }
     }
 
+    /**
+     * Проверяет, уничтожен ли корабль обстрелянный корабль. Если да, то отмечает занимаемые им ячейки
+     * {@link CellState CellState.SUNK}, а соседние - {@link CellState CellState.AUREOLE}.
+     *
+     * @param firedCol номер обстрелянного столбца.
+     * @param firedRow номер обстрелянной строки.
+     * @return {@code true} если корабль потоплен.
+     */
     private boolean shipKilled(final int firedCol, final int firedRow) {
         final Coordinate sternCoordinate = getSternCoordinate(firedCol, firedRow);
         final int sternCol = sternCoordinate.col(), sternRow = sternCoordinate.row();
@@ -231,25 +313,53 @@ public class Grid {
         return true;
     }
 
+    /**
+     * Проверяет, что {@code coordinate} в границах игрового поля.
+     *
+     * @param coordinate координаты ячейки.
+     * @throws IndexOutOfBoundsException если по крайней мере одна из линий вне игрового поля.
+     */
     private void checkCoordinate(final Coordinate coordinate) {
         checkCoordinate(coordinate.col());
         checkCoordinate(coordinate.row());
     }
 
+    /**
+     * Проверяет, что линия под номером {@code line} в границах игрового поля.
+     *
+     * @param line номер линии ячейки.
+     * @throws IndexOutOfBoundsException если линия вне игрового поля ({@code line < 0 || line >= getSize()}).
+     */
     private void checkCoordinate(final int line) {
         if(line < 0 || line >= grid.length) {
             throw new IndexOutOfBoundsException("Coordinate: " + line + ", Size: " + grid.length);
         }
     }
 
+    /**
+     * Возвращает размер игрового поля.
+     *
+     * @return длину стороны квадратного игрового поля.
+     */
     public int getSize() {
         return grid.length;
     }
 
+    /**
+     * Возвращает игровое поле.
+     *
+     * @return матрицу с информацией о состоянии ячеек игрового поля.
+     */
     public CellState[][] getGrid() {
         return grid;
     }
 
+    /**
+     * Выводит игровое поле в консоль в виде таблицы.
+     *
+     * @param mine {@code true} если игровое поле принадлежит игроку, для которого оно выводится, или {@code false} если
+     *             игровое поле принадлежит противнику этого игрока.
+     */
     public void printGrid(final boolean mine) {
         final char wall = '│';
         printEdge(EdgeType.TOP);
@@ -278,6 +388,12 @@ public class Grid {
         }
     }
 
+    /**
+     * Выводит в консоль горизонтальную линию между строками игрового поля.
+     *
+     * @param edgeType тип линии.
+     * @throws IllegalArgumentException если неизвестное значение {@link EdgeType edgeType}.
+     */
     private void printEdge(final EdgeType edgeType) {
         final char left, central, right, floor, delimiter;
         switch(edgeType) {
@@ -319,10 +435,12 @@ public class Grid {
         System.out.print(right + "\n");
     }
 
+    /** Результат выстрела, возвращаемый {@link Grid#fire}. */
     public enum FireResult {
         MISS, HIT, SUNK
     }
 
+    /** Состояние ячеек игрового поля {@link Grid}. */
     public enum CellState {
         EMPTY, PROBABLE_SHIP, SHIP, MISS, HIT, SUNK, AUREOLE;
 
@@ -335,6 +453,7 @@ public class Grid {
         }
     }
 
+    /** Тип линии, выводимой {@link #printEdge}. */
     private enum EdgeType {
         TOP, DOUBLE, CENTRAL, BOTTOM
     }
