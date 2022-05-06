@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -115,10 +116,17 @@ public class ConfigureBattleController implements Initializable {
         shipTypesGrid.add(GridUI.getLabelForGrid("Длина", cellSize), 2, 0);
         shipTypesGrid.add(GridUI.getLabelForGrid("Количество", cellSize), 3, 0);
         for(int shipTypeN = 0; shipTypeN < shipTypes.size(); shipTypeN++) {
-            shipTypesGrid.add(GridUI.getLabelForGrid(shipTypes.get(shipTypeN).name(), cellSize), 0, shipTypeN + 1);
+            final int finalShipTypeN = shipTypeN;
+            final TextField shipTypeNameTF = new TextField(shipTypes.get(shipTypeN).name());
+            shipTypeNameTF.setMaxSize(Double.MAX_VALUE, Settings.getCellSize());
+            shipTypeNameTF.getStyleClass().addAll("label", "grid", "grid-label");
+            shipTypeNameTF.setStyle("-fx-font-size: " + cellSize * 0.33 + ';');
+            shipTypeNameTF.setOnAction(e -> shipTypes.set(finalShipTypeN, new ShipType(shipTypeNameTF.getText(),
+                        shipTypes.get(finalShipTypeN).n(), shipTypes.get(finalShipTypeN).len())));
+            shipTypesGrid.add(shipTypeNameTF, 0, shipTypeN + 1);
+
             shipTypesGrid.add(GridUI.getShip(shipTypes.get(shipTypeN).len(), Settings.getCellSize()), 1, shipTypeN + 1);
 
-            final int finalShipTypeN = shipTypeN;
             final Spinner<Integer> lenShipsSpinner = getSpinner(1, gridSize, shipTypes.get(shipTypeN).len());
             lenShipsSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
                 if(!Objects.equals(oldValue, newValue)) {
