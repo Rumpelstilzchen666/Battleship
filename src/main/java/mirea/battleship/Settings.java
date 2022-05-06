@@ -7,6 +7,8 @@ public class Settings {
     public static final BattleSet DEFAULT_BATTLE_SET = new BattleSet(DEFAULT_SIZE, App.shipTypes.get("ruWiki"));
     public static final boolean USE_CORNERS = false, SHOW_MY_AUREOLE = true, SHOW_ENEMY_AUREOLE = true;
     public static final Style style = Style.DARK;
+    public static final String BATTLE_FILE_PATH =
+            "C:\\Users\\yaros\\YandexDisk\\МИРЭА\\Предметы\\СиПИ\\Практические работы\\battle.xml";
     static App app;
     static int cellSize = 50;
 

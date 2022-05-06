@@ -21,7 +21,7 @@ public class MainMenuController implements Initializable {
     }
 
     private void setMainMenuGrid() {
-        final String[] buttonLabels = new String[]{"Играть", "Настройки", "Правила", "Выход"};
+        final String[] buttonLabels = new String[]{"Новая игра", "Продолжить игру", "Настройки", "Правила", "Выход"};
         final int buttonWidthInCells = 3;
         final int nCols = buttonWidthInCells + 2;
         final int cellSize = 75;
@@ -42,7 +42,8 @@ public class MainMenuController implements Initializable {
                     button.setOnAction(actionEvent -> Settings.getApp().configureBattle());
                     button.setDefaultButton(true);
                 }
-                case 3 -> {
+                case 1 -> button.setOnAction(actionEvent -> Settings.getApp().restartBattle());
+                case 4 -> {
                     button.setOnAction(actionEvent -> System.exit(0));
                     button.setCancelButton(true);
                 }

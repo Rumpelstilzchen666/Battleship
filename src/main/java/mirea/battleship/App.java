@@ -1,5 +1,7 @@
 package mirea.battleship;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -8,9 +10,9 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import mirea.battleship.Backend.*;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Objects;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class App extends Application {
     static final HashMap<String, ShipType[]> shipTypes = new HashMap<>();
@@ -60,8 +62,33 @@ public class App extends Application {
     }
 
     public void finishGame() {
-        battle = null;
+        if(battle != null) {
+            final XmlMapper outXMLMapper = new XmlMapper();
+            outXMLMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
+            try {
+                outXMLMapper.writerWithDefaultPrettyPrinter().withRootName("Battle")
+                        .writeValue(new File(Settings.BATTLE_FILE_PATH), battle.getXMLMap());
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+            battle = null;
+        }
         setScene("MainMenu");
+    }
+
+    public void restartBattle() {
+        try {
+            battle = new Battle(new XmlMapper().readValue(inputStreamToString(Settings.BATTLE_FILE_PATH), Map.class));
+        } catch(IllegalXMLException | IOException e) {
+            e.printStackTrace();
+        }
+        if(battle != null) {
+            if(battle.allShipsArranged(true) && battle.allShipsArranged(false)) {
+                startBattle();
+            } else {
+                putShips();
+            }
+        }
     }
 
     public void setScene(final String fileName) {
@@ -104,5 +131,17 @@ public class App extends Application {
                 new ShipType("Ракетный катер", 4, 2)
         });
         Application.launch();
+    }
+
+    private static String inputStreamToString(final String fileName) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        String line;
+        BufferedReader br =
+                new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8));
+        while((line = br.readLine()) != null) {
+            sb.append(line).append('\n');
+        }
+        br.close();
+        return sb.toString();
     }
 }
