@@ -1,3 +1,7 @@
+* {
+   -fx-ship-color: #9098a0;
+}
+
 #main-label {
   -fx-font-size: 128;
   -fx-font-weight: bold;
@@ -11,16 +15,21 @@
 .game-label {
   -fx-font-size: 64;
   -fx-font-weight: bold;
+  -fx-padding: 25 0;
 }
 
-.grid-label {
-  -fx-font-size: 32;
+.grid-content {
   -fx-font-weight: bold;
+  -fx-background-color: transparent;
 }
 
 .result-label {
   -fx-font-size: 32;
   -fx-font-weight: bold;
+}
+
+.error-label {
+  -fx-text-fill: red;
 }
 
 .menu-button {
@@ -46,8 +55,8 @@
   -fx-background-color: green;
 }
 
-#shipTypesGrid {
-  -fx-grid-lines-visible: true;
+.grid-battlefield {
+  -fx-background-color: blue;
 }
 
 .ship {
@@ -67,4 +76,17 @@
 
 .hit-mark {
   -fx-stroke: red;
+}
+
+.spinner {
+  -fx-font-weight: bold;
+}
+
+.grid-spinner {
+  -fx-background-color: transparent;
+}
+
+.grid-spinner .text-field {
+  -fx-background-color: transparent;
+  -fx-border-color: transparent;
 }

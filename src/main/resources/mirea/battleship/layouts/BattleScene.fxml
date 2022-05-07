@@ -11,11 +11,11 @@
   <center>
     <HBox id="grid-h-box" fx:id="gridHBox" alignment="CENTER">
       <VBox id="mine-grid-v-box" fx:id="mineGridVBox" alignment="TOP_CENTER">
-        <Label id="mine-grid-header" fx:id="mineGridHeader" styleClass="grid-label" text="Ваше поле"/>
+        <Label id="mine-grid-header" fx:id="mineGridHeader" styleClass="result-label" text="Ваше поле"/>
         <GridPane id="mine-game-grid" fx:id="mineGameGrid"/>
       </VBox>
       <VBox id="enemy-grid-v-box" fx:id="enemyGridVBox" alignment="TOP_CENTER">
-        <Label id="enemy-grid-header" fx:id="enemyGridHeader" styleClass="grid-label" text="Вражеское поле"/>
+        <Label id="enemy-grid-header" fx:id="enemyGridHeader" styleClass="result-label" text="Поле соперника"/>
         <GridPane id="enemy-game-grid" fx:id="enemyGameGrid" styleClass="grid" gridLinesVisible="true"/>
       </VBox>
     </HBox>

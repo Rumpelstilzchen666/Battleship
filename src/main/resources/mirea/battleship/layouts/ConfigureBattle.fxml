@@ -11,7 +11,7 @@
   <center>
     <HBox id="grid-h-box" fx:id="gridHBox" alignment="CENTER" spacing="30">
       <GridPane id="game-grid" fx:id="gameGrid"/>
-      <VBox id="ship-types-v-box" fx:id="shipTypesVBox" alignment="CENTER" HBox.hgrow="NEVER">
+      <VBox id="ship-types-v-box" fx:id="shipTypesVBox" alignment="CENTER" HBox.hgrow="NEVER" spacing="1">
         <GridPane id="ship-types-grid" fx:id="shipTypesGrid" alignment="TOP_CENTER" gridLinesVisible="true">
           <columnConstraints>
             <ColumnConstraints fx:id="nameCol" halignment="CENTER" hgrow="NEVER"/>

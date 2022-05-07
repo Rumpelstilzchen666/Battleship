@@ -43,7 +43,7 @@ public class GridUI {
         }
 
         final GridPane gridBattlefield = new GridPane();
-        gridBattlefield.getStyleClass().addAll("grid-battlefield", "grid");
+        gridBattlefield.getStyleClass().add("grid-battlefield");
         gridBattlefield.setGridLinesVisible(true);
         gridBattlefield.getColumnConstraints().addAll(getColumnConstraintsForGrid(nCols));
         gridBattlefield.getRowConstraints().addAll(getRowConstraintsForGrid(nRows));
@@ -73,7 +73,7 @@ public class GridUI {
 
     public static Label getLabelForGrid(final String text, final int cellSize) {
         Label label = new Label(text);
-        label.getStyleClass().add("grid-label");
+        label.getStyleClass().add("grid-content");
         label.setStyle("-fx-font-size: " + cellSize * 0.33 + ';');
         label.setPadding(new Insets(cellSize * 0.1));
         return label;

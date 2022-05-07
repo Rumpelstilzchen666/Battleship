@@ -1,21 +1,26 @@
+* {
+   -fx-accent-color: aqua;
+}
+
 .background {
   -fx-background-color: black;
 }
 
+.label {
+  -fx-text-fill: -fx-accent-color;
+}
+
+.grid-content {
+  -fx-text-fill: -fx-accent-color;
+}
+
 .grid {
-  -fx-grid-lines-color: aqua;
-  -fx-stroke: aqua;
+  -fx-grid-lines-color: -fx-accent-color;
+  -fx-stroke: -fx-accent-color;
+  /*-fx-border-color: -fx-accent-color;*/
   -fx-background-color: black;
 }
 
-.grid-battlefield {
-  -fx-background-color: blue;
-}
-
-.label {
-  -fx-text-fill: aqua;
-}
-
-.error-label {
-  -fx-text-fill: red;
+.grid-spinner .text-field {
+  -fx-text-fill: -fx-accent-color;
 }

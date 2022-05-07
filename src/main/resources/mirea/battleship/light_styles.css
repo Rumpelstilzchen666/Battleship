@@ -5,11 +5,3 @@
 .grid {
   -fx-background-color: white;
 }
-
-.grid-battlefield {
-  -fx-background-color: blue;
-}
-
-.error-label {
-  -fx-text-fill: red;
-}
