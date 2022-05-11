@@ -2,10 +2,14 @@ package mirea.battleship.Controllers;
 
 import mirea.battleship.Backend.Coordinate;
 import mirea.battleship.Backend.Direction;
+import mirea.battleship.Settings;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -87,6 +91,36 @@ public class GridUI {
             //Иначе сетка исчезает
             grid.setGridLinesVisible(false);
             grid.setGridLinesVisible(true);
+        }
+    }
+
+    public static void prepareMenuGrid(final GridPane menuGrid, final String[] buttonLabels,
+            final EventHandler<ActionEvent>[] buttonOnActions, final int defaultButtonN, final int cancelButtonN) {
+        if(buttonLabels == null || buttonOnActions == null) { throw new NullPointerException(); }
+        if(buttonLabels.length != buttonOnActions.length) { throw new IllegalArgumentException(); }
+        final int buttonWidthInCells = 3;
+        final int nCols = buttonWidthInCells + 2;
+        final int cellSize = (int) (Settings.getCellSize() * 1.5);
+        prepareBattleGrid(menuGrid, buttonLabels.length, nCols, cellSize);
+
+        final Polygon ship = getShip(buttonWidthInCells, cellSize);
+        final double shipWidth = getWidth(ship), shipHeight = getHeight(ship);
+        for(int rowN = 0; rowN < buttonLabels.length; rowN++) {
+            menuGrid.add(getShip(buttonWidthInCells, cellSize),
+                    (nCols - buttonWidthInCells) / 2 + 1, rowN + 1, buttonWidthInCells, 1);
+
+            final Button button = new Button('_' + buttonLabels[rowN]);
+            button.getStyleClass().add("menu-button");
+            button.setStyle("-fx-font-size: " + cellSize / 4 + ';');
+            button.setPrefSize(shipWidth, shipHeight);
+            button.setOnAction(buttonOnActions[rowN]);
+            if(rowN == defaultButtonN) {
+                button.setDefaultButton(true);
+            }
+            if(rowN == cancelButtonN) {
+                button.setCancelButton(true);
+            }
+            menuGrid.add(button, (nCols - buttonWidthInCells) / 2 + 1, rowN + 1, buttonWidthInCells, 1);
         }
     }
 
