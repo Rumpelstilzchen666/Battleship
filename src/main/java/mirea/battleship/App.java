@@ -1,21 +1,19 @@
 package mirea.battleship;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import mirea.battleship.Backend.*;
+import mirea.battleship.Backend.Battle;
+import mirea.battleship.Backend.BattleSet;
+import mirea.battleship.Controllers.ConfigureBattleController;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.io.IOException;
+import java.util.Objects;
 
 public class App extends Application {
-    static final HashMap<String, ShipType[]> shipTypes = new HashMap<>();
     private Stage primaryStage;
     private Battle battle;
 
@@ -30,10 +28,9 @@ public class App extends Application {
         this.primaryStage.getIcons().add(
                 new Image(Objects.requireNonNull(getClass().getResourceAsStream("/mirea/battleship/icon.jpg"))));
         final Scene mainScene = new Scene(new Parent() { });
-        mainScene.getStylesheets().add(
-                Objects.requireNonNull(getClass().getResource("/mirea/battleship/styles.css")).toExternalForm());
-        mainScene.getStylesheets().add(
-                Objects.requireNonNull(getClass().getResource(Settings.style.getFilePath())).toExternalForm());
+        mainScene.getStylesheets().addAll(
+                Objects.requireNonNull(App.class.getResource("/mirea/battleship/styles.css")).toExternalForm(),
+                Objects.requireNonNull(App.class.getResource(Settings.style.getFilePath())).toExternalForm());
         this.primaryStage.setScene(mainScene);
         this.primaryStage.setMaximized(true);
         this.primaryStage.setResizable(false);
@@ -43,7 +40,14 @@ public class App extends Application {
 
     public void configureBattle() {
         System.out.println("Настройки боя.");
-        setScene("ConfigureBattle");
+        BattleSet battleSet;
+        try {
+            battleSet = XMLTools.getBattleSet();
+        } catch(IOException e) {
+            e.printStackTrace();
+            battleSet = new BattleSet(Settings.DEFAULT_SIZE, null);
+        }
+        setScene("ConfigureBattle", new ConfigureBattleController(battleSet));
     }
 
     public void startGame(final BattleSet battleSet) {
@@ -63,14 +67,7 @@ public class App extends Application {
 
     public void finishGame() {
         if(battle != null) {
-            final XmlMapper outXMLMapper = new XmlMapper();
-            outXMLMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-            try {
-                outXMLMapper.writerWithDefaultPrettyPrinter().withRootName("Battle")
-                        .writeValue(new File(Settings.BATTLE_FILE_PATH), battle.getXMLMap());
-            } catch(IOException e) {
-                e.printStackTrace();
-            }
+            XMLTools.saveBattle(battle);
             battle = null;
         }
         setScene("MainMenu");
@@ -78,7 +75,7 @@ public class App extends Application {
 
     public void restartBattle() {
         try {
-            battle = new Battle(new XmlMapper().readValue(inputStreamToString(Settings.BATTLE_FILE_PATH), Map.class));
+            battle = XMLTools.getBattle();
         } catch(IllegalXMLException | IOException e) {
             e.printStackTrace();
         }
@@ -92,7 +89,14 @@ public class App extends Application {
     }
 
     public void setScene(final String fileName) {
+        setScene(fileName, null);
+    }
+
+    public void setScene(final String fileName, final Object controller) {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("layouts/" + fileName + ".fxml"));
+        if(Objects.nonNull(controller)) {
+            fxmlLoader.setController(controller);
+        }
         try {
             primaryStage.getScene().setRoot(fxmlLoader.load());
         } catch(IOException e) {
@@ -105,43 +109,6 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
-        shipTypes.put("min", new ShipType[] {
-                new ShipType(null, 2, 1),
-        });
-        shipTypes.put("aLot", new ShipType[] {
-                new ShipType("Крейсер", 2, 2),
-        });
-        shipTypes.put("ruWiki", new ShipType[] {
-                new ShipType("Линкор", 1, 4),
-                new ShipType("Крейсер", 2, 3),
-                new ShipType("Эсминец", 3, 2),
-                new ShipType("Торпедный катер", 4, 1)
-        });
-        shipTypes.put("Hasbro", new ShipType[] {
-                new ShipType("Авианосец", 1, 5),
-                new ShipType("Линкор", 1, 4),
-                new ShipType("Эсминец", 1, 3),
-                new ShipType("Подлодка", 1, 3),
-                new ShipType("Сторожевой корабль", 1, 2)
-        });
-        shipTypes.put("mine", new ShipType[] {
-                new ShipType("Авианосец", 1, 4),
-                new ShipType("Крейсер", 1, 3),
-                new ShipType("Подлодка", 1, 3),
-                new ShipType("Ракетный катер", 4, 2)
-        });
         Application.launch();
-    }
-
-    private static String inputStreamToString(final String fileName) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        String line;
-        BufferedReader br =
-                new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8));
-        while((line = br.readLine()) != null) {
-            sb.append(line).append('\n');
-        }
-        br.close();
-        return sb.toString();
     }
 }

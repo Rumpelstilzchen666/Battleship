@@ -3,8 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="background" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="mirea.battleship.Controllers.ConfigureBattleController">
+<BorderPane styleClass="background" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1">
+            <!--fx:controller="mirea.battleship.Controllers.ConfigureBattleController"-->
   <top>
     <Label id="header" fx:id="header" styleClass="game-label" text="Настройки боя" BorderPane.alignment="TOP_CENTER"/>
   </top>

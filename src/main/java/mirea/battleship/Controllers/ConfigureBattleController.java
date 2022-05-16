@@ -14,6 +14,7 @@ import javafx.util.converter.IntegerStringConverter;
 import mirea.battleship.Backend.BattleSet;
 import mirea.battleship.Backend.ShipType;
 import mirea.battleship.Settings;
+import mirea.battleship.XMLTools;
 
 import java.net.URL;
 import java.text.NumberFormat;
@@ -49,10 +50,10 @@ public class ConfigureBattleController implements Initializable {
     private final ArrayList<ShipType> shipTypes = new ArrayList<>();
     private int gridSize;
 
-    public ConfigureBattleController() {
+    public ConfigureBattleController(final BattleSet battleSet) {
         //TODO Добавить выбор набора
-        shipTypes.addAll(List.of(Settings.DEFAULT_BATTLE_SET.shipTypes()));
-        gridSize = Settings.DEFAULT_BATTLE_SET.gridSize();
+        shipTypes.addAll(List.of(battleSet.shipTypes()));
+        gridSize = battleSet.gridSize();
     }
 
     @Override
