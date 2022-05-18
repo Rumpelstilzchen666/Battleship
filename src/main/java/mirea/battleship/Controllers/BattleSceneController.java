@@ -138,7 +138,6 @@ public class BattleSceneController implements Initializable {
         Settings.getApp().setScene("PlayersBarrier");
     }
 
-    @FXML
     private void finish() {
         Settings.getApp().finishGame();
     }

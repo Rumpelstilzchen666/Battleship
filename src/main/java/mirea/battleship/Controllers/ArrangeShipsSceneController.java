@@ -13,6 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
+import mirea.battleship.XMLTools;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ public class ArrangeShipsSceneController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        PopupBattleMenuController.init(Settings.getApp().getPrimaryStage(),
+                actionEvent -> XMLTools.saveBattle(battle));
         header.setText(battle.getPlayerName(true) + ", расставьте свои корабли на поле");
         gridHBox.setSpacing(Settings.getCellSize());
         GridUI.prepareBattleGrid(gameGrid, grid.getSize(), Settings.getCellSize());
@@ -102,11 +105,6 @@ public class ArrangeShipsSceneController implements Initializable {
             case 0 -> Settings.getApp().putShips();
             case 1 -> Settings.getApp().startBattle();
         }
-    }
-
-    @FXML
-    private void finish() {
-        Settings.getApp().finishGame();
     }
 
     private void updateDoneButtonDisable() {

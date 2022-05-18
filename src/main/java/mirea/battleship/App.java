@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import mirea.battleship.Backend.Battle;
 import mirea.battleship.Backend.BattleSet;
 import mirea.battleship.Controllers.ConfigureBattleController;
+import mirea.battleship.Controllers.PopupBattleMenuController;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -62,14 +63,15 @@ public class App extends Application {
 
     public void startBattle() {
         System.out.println("Бой начался!");
+        // По-хорошему это не сюда, но иначе придётся пересоздавать на каждой смене хода
+        // (в конструкторе PlayersBarrierController) или держать там флаг, что меню уже создано и,
+        // что вообще непонятно как, менять его при окончании боя и возврате в главное меню.
+        PopupBattleMenuController.init(primaryStage, actionEvent -> XMLTools.saveBattle(Settings.getApp().getBattle()));
         setScene("PlayersBarrier");
     }
 
     public void finishGame() {
-        if(battle != null) {
-            XMLTools.saveBattle(battle);
-            battle = null;
-        }
+        battle = null;
         setScene("MainMenu");
     }
 
@@ -102,6 +104,10 @@ public class App extends Application {
         } catch(IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
     }
 
     public Battle getBattle() {

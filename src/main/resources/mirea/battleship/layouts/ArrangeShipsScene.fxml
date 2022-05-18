@@ -26,8 +26,6 @@
       <buttons>
         <Button id="done-button" fx:id="doneButton" styleClass="done-button" onAction="#forward" disable="true"
                 text="_Подтвердить" ButtonBar.buttonData="OK_DONE"/>
-        <Button id="cancel-button" fx:id="cancelButton" styleClass="cancel-button" onAction="#finish"
-                text="_Выход" ButtonBar.buttonData="CANCEL_CLOSE"/>
       </buttons>
     </ButtonBar>
   </bottom>

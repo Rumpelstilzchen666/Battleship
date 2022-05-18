@@ -34,8 +34,6 @@
         <buttons>
           <Button id="done-button" fx:id="doneButton" onAction="#forward" styleClass="done-button"
                   text="_Сохранить настройки" ButtonBar.buttonData="OK_DONE"/>
-          <Button id="cancel-button" fx:id="cancelButton" onAction="#finish" styleClass="cancel-button" text="_Выход"
-                  ButtonBar.buttonData="CANCEL_CLOSE"/>
         </buttons>
       </ButtonBar>
     </VBox>

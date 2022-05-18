@@ -15,6 +15,9 @@ public class MainMenuController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        PopupMenuController.setOnEscapePressed(Settings.getApp().getPrimaryStage(), null);
+        final PopupMenuController popupMenu = PopupOptionMenuController.init(Settings.getApp().getPrimaryStage(),
+                "Вы действительно хотите выйти из игры?", new EventHandler[]{event -> System.exit(0), null});
         GridUI.prepareMenuGrid(mainMenuGrid,
                 new String[]{"Новая игра", "Продолжить игру", "Настройки", "Правила", "Выход"},
                 new EventHandler[]{
@@ -22,7 +25,7 @@ public class MainMenuController implements Initializable {
                         actionEvent -> Settings.getApp().restartBattle(),
                         null,
                         null,
-                        actionEvent -> System.exit(0)},
+                        actionEvent -> popupMenu.show()},
                 0, 4);
     }
 }

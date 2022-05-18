@@ -58,6 +58,8 @@ public class ConfigureBattleController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        PopupBattleMenuController.init(Settings.getApp().getPrimaryStage(),
+                actionEvent -> XMLTools.saveBattleSet(getBattleSet()));
         final int cellSize = Settings.getCellSize();
         gridHBox.setSpacing(cellSize);
         GridUI.prepareBattleGrid(gameGrid, gridSize, cellSize);
@@ -214,6 +216,10 @@ public class ConfigureBattleController implements Initializable {
         return (gridSize + 1) * (gridSize + 1);
     }
 
+    public BattleSet getBattleSet() {
+        return new BattleSet(gridSize, shipTypes.toArray(new ShipType[0]));
+    }
+
     @FXML
     private void addShipType() {
         shipTypes.add(new ShipType(null, 1, 1));
@@ -222,11 +228,6 @@ public class ConfigureBattleController implements Initializable {
 
     @FXML
     private void forward() {
-        Settings.getApp().startGame(new BattleSet(gridSize, shipTypes.toArray(new ShipType[0])));
-    }
-
-    @FXML
-    private void finish() {
-        Settings.getApp().finishGame();
+        Settings.getApp().startGame(getBattleSet());
     }
 }
