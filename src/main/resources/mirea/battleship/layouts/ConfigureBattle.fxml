@@ -21,7 +21,7 @@
           </columnConstraints>
         </GridPane>
         <Button id="add-ship-type-button" fx:id="addShipTypeButton" onAction="#addShipType"
-                  text="_Добавить тип кораблей"/>
+                text="_Добавить тип кораблей"/>
       </VBox>
     </HBox>
   </center>

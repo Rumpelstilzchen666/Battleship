@@ -27,7 +27,7 @@ public class App extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Морской бой");
         this.primaryStage.getIcons().add(
-                new Image(Objects.requireNonNull(getClass().getResourceAsStream("/mirea/battleship/icon.jpg"))));
+                new Image(Objects.requireNonNull(App.class.getResourceAsStream("/mirea/battleship/icon.jpg"))));
         final Scene mainScene = new Scene(new Parent() { });
         mainScene.getStylesheets().addAll(
                 Objects.requireNonNull(App.class.getResource("/mirea/battleship/styles.css")).toExternalForm(),

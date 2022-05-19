@@ -78,8 +78,7 @@ public class XMLTools {
         } else { throw new IllegalXMLException("Неверный тип элемента " + angleBrc(arrayKey) + '.'); }
     }
 
-    private static Object getNonNull(final Map<String, Object> XMLMap, final String key)
-            throws IllegalXMLException {
+    private static Object getNonNull(final Map<String, Object> XMLMap, final String key) throws IllegalXMLException {
         Object o = Objects.requireNonNull(XMLMap).get(key);
         if(o == null) { throw new IllegalXMLException("Отсутствует необходимый элемент " + angleBrc(key) + '.'); }
         return o;

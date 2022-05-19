@@ -1,10 +1,10 @@
 package mirea.battleship.Controllers;
 
-import mirea.battleship.Settings;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.GridPane;
+import mirea.battleship.Settings;
 
 import java.net.URL;
 import java.util.ResourceBundle;

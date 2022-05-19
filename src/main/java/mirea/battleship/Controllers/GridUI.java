@@ -1,8 +1,5 @@
 package mirea.battleship.Controllers;
 
-import mirea.battleship.Backend.Coordinate;
-import mirea.battleship.Backend.Direction;
-import mirea.battleship.Settings;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -17,6 +14,9 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
+import mirea.battleship.Backend.Coordinate;
+import mirea.battleship.Backend.Direction;
+import mirea.battleship.Settings;
 
 import java.util.Arrays;
 
@@ -127,9 +127,8 @@ public class GridUI {
     public static Polygon getShip(final int widthInCells, final int cellSize) {
         final double padding = cellSize * PADDING_RATIO, shipLen = cellSize * widthInCells - padding * 2, shipWidth =
                 cellSize - padding * 2;
-        final Polygon ship =
-                new Polygon(0, 0, shipLen * (1 - BOW_RATIO), 0, shipLen, shipWidth / 2, shipLen * (1 - BOW_RATIO),
-                        shipWidth, 0, shipWidth);
+        final Polygon ship = new Polygon(0, 0, shipLen * (1 - BOW_RATIO), 0, shipLen, shipWidth / 2,
+                                         shipLen * (1 - BOW_RATIO), shipWidth, 0, shipWidth);
         ship.getStyleClass().add("ship");
         return ship;
     }

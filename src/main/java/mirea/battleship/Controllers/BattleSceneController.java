@@ -1,14 +1,16 @@
 package mirea.battleship.Controllers;
 
-import javafx.scene.layout.HBox;
-import mirea.battleship.Backend.*;
-import mirea.battleship.Settings;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import mirea.battleship.Backend.Battle;
+import mirea.battleship.Backend.Coordinate;
+import mirea.battleship.Backend.Grid;
+import mirea.battleship.Settings;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,7 +43,7 @@ public class BattleSceneController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         gridHBox.setSpacing(Settings.getCellSize());
-        header.setText(Settings.getApp().getBattle().getPlayerName(true) + ", ваш ход");
+        header.setText(battle.getPlayerName(true) + ", ваш ход");
         setGameGrid(true);
         setGameGrid(false);
     }
@@ -58,8 +60,7 @@ public class BattleSceneController implements Initializable {
         final Grid.CellState[][] grid = battle.getGrid(mine).getGrid();
         for(Battle.Ship ship : ships) {
             if(displayAll || grid[ship.sternCoordinate().row()][ship.sternCoordinate().col()] == Grid.CellState.SUNK) {
-                addShipToGrid(gameGrid, cellSize, ship.sternCoordinate(), ship.shipType().len(),
-                        ship.direction());
+                addShipToGrid(gameGrid, cellSize, ship.sternCoordinate(), ship.shipType().len(), ship.direction());
             }
         }
         for(int row = 0; row < gridSize; row++) {

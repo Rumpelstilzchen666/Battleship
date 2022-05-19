@@ -1,7 +1,5 @@
 package mirea.battleship.Controllers;
 
-import mirea.battleship.Backend.*;
-import mirea.battleship.Settings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
@@ -13,13 +11,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
+import mirea.battleship.Backend.*;
+import mirea.battleship.Settings;
 import mirea.battleship.XMLTools;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ArrangeShipsSceneController implements Initializable {
     @FXML
@@ -147,7 +144,7 @@ public class ArrangeShipsSceneController implements Initializable {
                 dragContext.set(display.getTranslateX() - mouseEvent.getSceneX(),
                         display.getTranslateY() - mouseEvent.getSceneY());
                 gameGridBounds = gameGrid.localToScene(gameGrid.getBoundsInLocal());
-                relocate(); //Чтобы избражение этого корабля было над другими
+                relocate(); //Чтобы изображение этого корабля было над другими
                 removeFromGrid();
                 setState(State.CORRECT);
                 mouseEvent.consume();
@@ -182,7 +179,7 @@ public class ArrangeShipsSceneController implements Initializable {
 
         private Coordinate getCurrentCoordinate() {
             final Bounds displayBounds = display.localToScene(display.getBoundsInLocal());
-            final int gridSize =  grid.getSize();
+            final int gridSize = grid.getSize();
             final double cellSize = gameGridBounds.getWidth() / (gridSize + 1),
                     displayMinSize = Math.min(displayBounds.getHeight(), displayBounds.getWidth()),
                     gameGridLeft = gameGridBounds.getMinX() + cellSize,
@@ -223,8 +220,7 @@ public class ArrangeShipsSceneController implements Initializable {
             removeFromShipTypesGrid();
             if(coordinate == null) {
                 return addToShipTypesGrid();
-            }
-            else {
+            } else {
                 try {
                     return addToGridAndGameGrid(coordinate);
                 } catch(Grid.ShipLocationException e) {

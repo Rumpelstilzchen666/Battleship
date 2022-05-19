@@ -3,10 +3,7 @@ package mirea.battleship.Controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -19,10 +16,7 @@ import mirea.battleship.XMLTools;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 public class ConfigureBattleController implements Initializable {
@@ -128,8 +122,9 @@ public class ConfigureBattleController implements Initializable {
             shipTypeNameTF.setStyle("-fx-font-size: " + cellSize * 0.33 + ';');
             shipTypeNameTF.setAlignment(Pos.CENTER);
             shipTypeNameTF.setFocusTraversable(false);
-            shipTypeNameTF.setOnAction(e -> shipTypes.set(finalShipTypeN, new ShipType(shipTypeNameTF.getText(),
-                        shipTypes.get(finalShipTypeN).n(), shipTypes.get(finalShipTypeN).len())));
+            shipTypeNameTF.setOnAction(actionEvent -> shipTypes.set(finalShipTypeN,
+                    new ShipType(shipTypeNameTF.getText(), shipTypes.get(finalShipTypeN).n(),
+                            shipTypes.get(finalShipTypeN).len())));
             shipTypesGrid.add(shipTypeNameTF, 0, shipTypeN + 1);
 
             shipTypesGrid.add(GridUI.getShip(shipTypes.get(shipTypeN).len(), cellSize), 1, shipTypeN + 1);
@@ -137,8 +132,9 @@ public class ConfigureBattleController implements Initializable {
             final Spinner<Integer> lenShipsSpinner = getSpinner(1, gridSize, shipTypes.get(shipTypeN).len());
             lenShipsSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
                 if(!Objects.equals(oldValue, newValue)) {
-                    shipTypes.set(finalShipTypeN, new ShipType(shipTypes.get(finalShipTypeN).name(),
-                            shipTypes.get(finalShipTypeN).n(), newValue));
+                    shipTypes.set(finalShipTypeN,
+                            new ShipType(shipTypes.get(finalShipTypeN).name(), shipTypes.get(finalShipTypeN).n(),
+                                    newValue));
                     updateShipTypesGrid();
                 }
             });
@@ -228,6 +224,10 @@ public class ConfigureBattleController implements Initializable {
 
     @FXML
     private void forward() {
+        /* TODO Проверки:
+           sum(shipTypes[i] > 0)
+           shipTypes с одинаковыми названием и длиной (нужно ли объединять в один shipType)
+         */
         Settings.getApp().startGame(getBattleSet());
     }
 }

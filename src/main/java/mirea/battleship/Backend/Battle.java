@@ -65,8 +65,8 @@ public class Battle {
                 }
             } catch(Grid.SelectedCellException e) {
                 throw new IllegalXMLException(
-                        "Неверные координаты [" + coordinate.col() + ", " + coordinate.row() + "] в " + XMLTools.angleBrc(
-                                "FiredCoordinates") + '.', e);
+                        "Неверные координаты [" + coordinate.col() + ", " + coordinate.row() + "] в " +
+                                XMLTools.angleBrc("FiredCoordinates") + '.', e);
             }
         }
     }
@@ -190,10 +190,10 @@ public class Battle {
 
     @Override
     public String toString() {
-        return "Battle{" + "playersNames=" + Arrays.toString(playersNames) + ", grid=" + Arrays.toString(
-                grid) + ", shipTypes=" + Arrays.toString(shipTypes) + ", nShips0=" + Arrays.toString(
-                nShips[0]) + ", nShips1=" + Arrays.toString(
-                nShips[1]) + ", ships[0=" + ships0 + ", 1=" + ships1 + ']' + ", firedCoordinates=" + firedCoordinates + ", zeroPlayer=" + zeroPlayer + '}';
+        return "Battle{" + "playersNames=" + Arrays.toString(playersNames) + ", grid=" + Arrays.toString(grid) +
+                ", shipTypes=" + Arrays.toString(shipTypes) + ", nShips0=" + Arrays.toString(nShips[0]) +
+                ", nShips1=" + Arrays.toString(nShips[1]) + ", ships[0=" + ships0 + ", 1=" + ships1 + ']' +
+                ", firedCoordinates=" + firedCoordinates + ", zeroPlayer=" + zeroPlayer + '}';
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -207,8 +207,8 @@ public class Battle {
         public static Ship getFromXMLMap(final Map<String, Object> shipMap)
                 throws JsonProcessingException, IllegalXMLException {
             Objects.requireNonNull(shipMap);
-            if(!shipMap.containsKey("shipType") || !shipMap.containsKey("sternCoordinate") || !shipMap.containsKey(
-                    "direction")) {
+            if(!shipMap.containsKey("shipType") || !shipMap.containsKey("sternCoordinate") ||
+                    !shipMap.containsKey("direction")) {
                 throw new IllegalXMLException("Отсутствует необходимый элемент.");
             }
             return XMLTools.reXML(shipMap, Ship.class);
