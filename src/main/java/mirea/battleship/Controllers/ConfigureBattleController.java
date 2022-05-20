@@ -122,9 +122,9 @@ public class ConfigureBattleController implements Initializable {
             shipTypeNameTF.setStyle("-fx-font-size: " + cellSize * 0.33 + ';');
             shipTypeNameTF.setAlignment(Pos.CENTER);
             shipTypeNameTF.setFocusTraversable(false);
-            shipTypeNameTF.setOnAction(actionEvent -> shipTypes.set(finalShipTypeN,
-                    new ShipType(shipTypeNameTF.getText(), shipTypes.get(finalShipTypeN).n(),
-                            shipTypes.get(finalShipTypeN).len())));
+            shipTypeNameTF.textProperty().addListener((observable, oldValue, newValue) -> shipTypes.set(finalShipTypeN,
+                    new ShipType((newValue != null && newValue.trim().length() > 0) ? newValue.trim() : " ",
+                            shipTypes.get(finalShipTypeN).n(), shipTypes.get(finalShipTypeN).len())));
             shipTypesGrid.add(shipTypeNameTF, 0, shipTypeN + 1);
 
             shipTypesGrid.add(GridUI.getShip(shipTypes.get(shipTypeN).len(), cellSize), 1, shipTypeN + 1);
