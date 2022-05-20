@@ -81,9 +81,8 @@ public class Battle {
                         "Несуществующий тип корабля " + ship.shipType() + " в " + XMLTools.angleBrc(mapKey) + '.');
             }
             try {
-                getGrid(true).putProbableShip(ship.sternCoordinate().col(), ship.sternCoordinate().row(),
+                getGrid(true).putShip(ship.sternCoordinate().col(), ship.sternCoordinate().row(),
                         ship.shipType().len(), ship.direction());
-                getGrid(true).confirmProbableShip();
             } catch(Grid.ShipLocationException e) {
                 throw new IllegalXMLException(
                         "Неверные координаты корабля " + ship + " в " + XMLTools.angleBrc(mapKey) + '.', e);

@@ -8,10 +8,8 @@ import java.util.ArrayList;
 public class Grid {
     /** Матрица grid используется для хранения информации о состоянии ячеек игрового поля. */
     private final CellState[][] grid;
-    /** Список probableShipCoordinates используется для хранения координат, занимаемых планируемым кораблём. */
-    private final ArrayList<Coordinate> probableShipCoordinates = new ArrayList<>();
-    /** Свойство probableShipOk используется для указания того, можно ли сохранить планируемый корабль. */
-    private boolean probableShipOk;
+    /** Массив shipBeingPutCoordinates используется для хранения координат, занимаемых устанавливаемым кораблём. */
+    private Coordinate[] shipBeingPutCoordinates;
 
     /**
      * Создаёт пустое игровое поле размера {@code size}.
@@ -30,20 +28,20 @@ public class Grid {
     }
 
     /**
-     * Пытается поместить планируемый корабль на игровое поле.
+     * Проверяет, что корабль можно установить на игровое поле.
      *
-     * @param sternCol номер столбца, где расположена корма планируемого корабля.
-     * @param sternRow номер строки, где расположена корма планируемого корабля.
-     * @param len      длина планируемого корабля.
-     * @param dir      направление носа планируемого корабля.
-     * @return {@code true} если планируемый корабль поставлен на игровое поле.
-     * @throws IndexOutOfBoundsException если строка или столбец, где расположена корма планируемого корабля, вне
+     * @param sternCol номер столбца, где расположена корма проверяемого корабля.
+     * @param sternRow номер строки, где расположена корма проверяемого корабля.
+     * @param len      длина проверяемого корабля.
+     * @param dir      направление носа проверяемого корабля.
+     * @return {@code true} если корабль можно установить на игровое поле.
+     * @throws IndexOutOfBoundsException если строка или столбец, где расположена корма проверяемого корабля, вне
      *                                   игрового поля.
-     * @throws IllegalArgumentException  если некорректная длина планируемого корабля ({@code len < 1}).
+     * @throws IllegalArgumentException  если длина проверяемого корабля некорректна ({@code len < 1}).
      * @throws NullPointerException      если {@code dir == null}.
-     * @throws ShipLocationException     если планируемый корабль невозможно поставить на игровое поле.
+     * @throws ShipLocationException     если проверяемый корабль невозможно установить на игровое поле.
      */
-    public boolean putProbableShip(final int sternCol, final int sternRow, final int len, final Direction dir)
+    public boolean isOkPutShip(final int sternCol, final int sternRow, final int len, final Direction dir)
             throws ShipLocationException {
         checkCoordinate(sternCol);
         checkCoordinate(sternRow);
@@ -53,10 +51,7 @@ public class Grid {
         if(dir == null) {
             throw new NullPointerException("direction == null");
         }
-        removeProbableShip();
         final Coordinate[] shipCoordinates = getShipCoordinates(sternCol, sternRow, len, dir);
-        probableShipCoordinates.ensureCapacity(len);
-        probableShipOk = false; // Превентивная мера, чтобы не вставлять на месте каждой возможной ошибки
         boolean touchAnotherShip = false;
         int col, row;
         for(Coordinate shipCoordinate : shipCoordinates) {
@@ -80,13 +75,12 @@ public class Grid {
                                     (col > 0 && row > 0 && grid[row - 1][col - 1] == CellState.SHIP))) {
                  touchAnotherShip = true;
             }
-            grid[row][col] = CellState.PROBABLE_SHIP;
-            probableShipCoordinates.add(shipCoordinate);
         }
         if(touchAnotherShip) {
             throw new ShipLocationException("Корабль касается другого корабля.");
         }
-        return probableShipOk = true;
+        shipBeingPutCoordinates = shipCoordinates;
+        return true;
     }
 
     /**
@@ -111,34 +105,33 @@ public class Grid {
         return shipCoordinates;
     }
 
-    /**
-     * Удаляет планируемый корабль с игрового поля.
-     */
-    public void removeProbableShip() {
-        for(Coordinate probableShipCoordinate : probableShipCoordinates) {
-            grid[probableShipCoordinate.row()][probableShipCoordinate.col()] = CellState.EMPTY;
-        }
-        probableShipCoordinates.clear();
-    }
 
     /**
-     * Сохраняет планируемый корабль на игровом поле.
+     * Устанавливает корабль на игровое поле.
      *
-     * @return {@code true} если планируемый корабль успешно сохранён на игровом поле.
-     * @throws ShipLocationException если планируемый корабль невозможно сохранить на игровом поле.
+     * @param sternCol номер столбца, где расположена корма корабля.
+     * @param sternRow номер строки, где расположена корма корабля.
+     * @param len      длина корабля.
+     * @param dir      направление носа корабля.
+     * @return {@code true} если корабль успешно установлен на игровое поле.
+     * @throws IndexOutOfBoundsException если строка или столбец, где расположена корма корабля, вне игрового поля.
+     * @throws IllegalArgumentException  если длина корабля некорректна ({@code len < 1}).
+     * @throws NullPointerException      если {@code dir == null}.
+     * @throws ShipLocationException     если корабль невозможно установить на игровое поле.
      */
-    public boolean confirmProbableShip() throws ShipLocationException {
-        if(probableShipCoordinates.isEmpty()) {
-            return false;
+    public boolean putShip(final int sternCol, final int sternRow, final int len, final Direction dir)
+            throws ShipLocationException {
+        if(isOkPutShip(sternCol, sternRow, len, dir)) {
+            if(shipBeingPutCoordinates == null) {
+                throw new InternalError("Не сохранены координаты устанавливаемого корабля.");
+            }
+            for(Coordinate coordinate : shipBeingPutCoordinates) {
+                grid[coordinate.row()][coordinate.col()] = CellState.SHIP;
+            }
+            shipBeingPutCoordinates = null;
+            return true;
         }
-        if(!probableShipOk) {
-            throw new ShipLocationException("Корабль расположен неправильно.");
-        }
-        for(Coordinate coordinate : probableShipCoordinates) {
-            grid[coordinate.row()][coordinate.col()] = CellState.SHIP;
-        }
-        probableShipCoordinates.clear();
-        return true;
+        return false;
     }
 
     /**
@@ -224,9 +217,6 @@ public class Grid {
     public FireResult fire(final int col, final int row) throws SelectedCellException {
         checkCoordinate(col);
         checkCoordinate(row);
-        if(grid[row][col] == CellState.PROBABLE_SHIP) {
-            throw new IllegalStateException("Probable ship must be removed or confirmed");
-        }
         if(grid[row][col].isFired()) {
             throw new SelectedCellException("Эта клетка уже была обстреляна.");
         }
@@ -375,7 +365,6 @@ public class Grid {
             for(int j = 0; j < getSize(); j++) {
                 System.out.print(' ' + switch(grid[i][j]) {
                     case EMPTY -> "  ";
-                    case PROBABLE_SHIP -> probableShipOk ? " ⃞ " : "￯ ";
                     case SHIP -> mine ? "■ " : "  ";
                     case MISS -> "○  ";
                     case HIT -> "❌ ";
@@ -442,7 +431,7 @@ public class Grid {
 
     /** Состояние ячеек игрового поля {@link Grid}. */
     public enum CellState {
-        EMPTY, PROBABLE_SHIP, SHIP, MISS, HIT, SUNK, AUREOLE;
+        EMPTY, SHIP, MISS, HIT, SUNK, AUREOLE;
 
         public boolean isFired() {
             return this == MISS || this == HIT || this == SUNK;

@@ -234,11 +234,9 @@ public class ArrangeShipsSceneController implements Initializable {
                 return false;
             }
             try {
-                grid.putProbableShip(coordinate.col(), coordinate.row(), getLength(), getDirection());
+                grid.isOkPutShip(coordinate.col(), coordinate.row(), getLength(), getDirection());
             } catch(Grid.ShipLocationException e) {
                 return false;
-            } finally {
-                grid.removeProbableShip();
             }
             return true;
         }
@@ -247,8 +245,7 @@ public class ArrangeShipsSceneController implements Initializable {
             if(coordinate == null || getLocation() == Location.GAME_GRID) {
                 return false;
             }
-            grid.putProbableShip(coordinate.col(), coordinate.row(), getLength(), getDirection());
-            grid.confirmProbableShip();
+            grid.putShip(coordinate.col(), coordinate.row(), getLength(), getDirection());
             sternCoordinate = coordinate;
             GridUI.addShipToGrid(gameGrid, display, sternCoordinate, getLength(), getDirection());
             setLocation(Location.GRID);
