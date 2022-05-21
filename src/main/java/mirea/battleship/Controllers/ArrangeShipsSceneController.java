@@ -96,7 +96,6 @@ public class ArrangeShipsSceneController implements Initializable {
 
     @FXML
     private void forward() {
-        addShipsToBattle();
         battle.nextPlayer();
         switch(battle.getPlayerN(false)) {
             case 0 -> Settings.getApp().putShips();
@@ -116,10 +115,6 @@ public class ArrangeShipsSceneController implements Initializable {
 
     private void setDoneButtonDisable(final boolean disable) {
         doneButton.setDisable(disable);
-    }
-
-    private void addShipsToBattle() {
-        ships.forEach(ship -> battle.addShip(ship.shipTypeN, ship.getSternCoordinate(), ship.getDirection()));
     }
 
     private class Ship {
@@ -245,7 +240,7 @@ public class ArrangeShipsSceneController implements Initializable {
             if(coordinate == null || getLocation() == Location.GAME_GRID) {
                 return false;
             }
-            grid.putShip(coordinate.col(), coordinate.row(), getLength(), getDirection());
+            battle.addShip(shipTypeN, coordinate, getDirection());
             sternCoordinate = coordinate;
             GridUI.addShipToGrid(gameGrid, display, sternCoordinate, getLength(), getDirection());
             setLocation(Location.GRID);
@@ -268,7 +263,7 @@ public class ArrangeShipsSceneController implements Initializable {
                     }
                     prevSternCoordinate = sternCoordinate;
                     setDoneButtonDisable(true);
-                    grid.removeShip(sternCoordinate.col(), sternCoordinate.row());
+                    battle.removeShip(sternCoordinate);
                 } catch(Grid.SelectedCellException e) {
                     removeFromGameGrid();
                     throw new RuntimeException("Корабль должен быть установлен в указанных координатах.", e);

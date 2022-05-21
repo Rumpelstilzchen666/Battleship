@@ -81,13 +81,11 @@ public class Battle {
                         "Несуществующий тип корабля " + ship.shipType() + " в " + XMLTools.angleBrc(mapKey) + '.');
             }
             try {
-                getGrid(true).putShip(ship.sternCoordinate().col(), ship.sternCoordinate().row(),
-                        ship.shipType().len(), ship.direction());
+                addShip(getShipTypeN(ship.shipType()), ship.sternCoordinate(), ship.direction());
             } catch(Grid.ShipLocationException e) {
                 throw new IllegalXMLException(
                         "Неверные координаты корабля " + ship + " в " + XMLTools.angleBrc(mapKey) + '.', e);
             }
-            addShip(getShipTypeN(ship.shipType()), ship.sternCoordinate(), ship.direction());
         }
     }
 
@@ -125,13 +123,16 @@ public class Battle {
         return (getPlayerN(present) == 0 ? ships0 : ships1);
     }
 
-    public void addShip(final int shipTypeN, final Coordinate sternCoordinate, final Direction direction) {
+    public void addShip(final int shipTypeN, final Coordinate sternCoordinate, final Direction direction)
+            throws Grid.ShipLocationException {
         if(shipTypeN < 0 || shipTypeN >= shipTypes.length) {
             throw new IndexOutOfBoundsException("Ship type number: " + shipTypeN + ", Size: " + shipTypes.length);
         }
         if(getNShips(true)[shipTypeN] == shipTypes[shipTypeN].n()) {
             throw new IllegalStateException("Too many ships of this type");
         }
+        getGrid(true).putShip(sternCoordinate.col(), sternCoordinate.row(), shipTypes[shipTypeN].len(),
+                direction);
         getNShips(true)[shipTypeN]++;
         getShips(true).add(new Ship(shipTypes[shipTypeN], sternCoordinate, direction));
     }
@@ -155,6 +156,18 @@ public class Battle {
             }
         }
         return null;
+    }
+
+    public boolean removeShip(final Coordinate sternCoordinate)
+            throws Grid.SelectedCellException, Grid.RemovalShipException {
+        getGrid(true).removeShip(sternCoordinate.col(), sternCoordinate.row());
+        for(Ship ship : getShips(true)) {
+            if(ship.sternCoordinate().equals(sternCoordinate)) {
+                getNShips(true)[getShipTypeN(ship.shipType())]--;
+                return getShips(true).remove(ship);
+            }
+        }
+        return false;
     }
 
     public boolean allShipsArranged(final boolean present) {
