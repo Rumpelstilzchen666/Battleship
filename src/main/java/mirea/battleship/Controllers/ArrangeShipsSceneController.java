@@ -52,8 +52,7 @@ public class ArrangeShipsSceneController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        PopupBattleMenuController.init(Settings.getApp().getPrimaryStage(),
-                actionEvent -> XMLTools.saveBattle(battle));
+        PopupBattleMenuController.init(Settings.getApp().getPrimaryStage(), actionEvent -> XMLTools.saveBattle(battle));
         header.setText(battle.getPlayerName(true) + ", расставьте свои корабли на поле");
         gridHBox.setSpacing(Settings.getCellSize());
         GridUI.prepareBattleGrid(gameGrid, grid.getSize(), Settings.getCellSize());
@@ -139,7 +138,7 @@ public class ArrangeShipsSceneController implements Initializable {
                 dragContext.set(display.getTranslateX() - mouseEvent.getSceneX(),
                         display.getTranslateY() - mouseEvent.getSceneY());
                 gameGridBounds = gameGrid.localToScene(gameGrid.getBoundsInLocal());
-                relocate(); //Чтобы изображение этого корабля было над другими
+                toFront();
                 removeFromGrid();
                 setState(State.CORRECT);
                 mouseEvent.consume();
@@ -152,9 +151,9 @@ public class ArrangeShipsSceneController implements Initializable {
                 mouseEvent.consume();
             });
 
+            final List<Direction> directionOrder =
+                    Arrays.asList(Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP);
             display.setOnScroll(scrollEvent -> {
-                final List<Direction> directionOrder =
-                        Arrays.asList(Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP);
                 final int directionN = directionOrder.indexOf(getDirection()),
                         newDirectionN = (directionN + (scrollEvent.getDeltaY() < 0 ? 1 : (directionOrder.size() - 1))) %
                                 directionOrder.size();
@@ -206,8 +205,20 @@ public class ArrangeShipsSceneController implements Initializable {
             display.setTranslateY(0);
         }
 
-        private boolean relocate() {
-            return relocate(sternCoordinate);
+        /**
+         * Перемещает {@code display} на передний план относительно других кораблей.
+         */
+        private void toFront() {
+            switch(location) {
+                case SHIP_TYPES_GRID -> {
+                    shipTypesGrid.getChildren().remove(display);
+                    shipTypesGrid.add(display, 1, shipTypeN);
+                }
+                case GRID, GAME_GRID -> {
+                    gameGrid.getChildren().remove(display);
+                    GridUI.addShipToGrid(gameGrid, display, sternCoordinate, getLength(), getDirection());
+                }
+            }
         }
 
         private boolean relocate(final Coordinate coordinate) {
@@ -340,7 +351,7 @@ public class ArrangeShipsSceneController implements Initializable {
                 GridUI.rotateShip(display, this.direction);
                 if(!getState().isActive() && getLocation() == Location.GRID) {
                     this.prevDirection = prevDirection;
-                    relocate();
+                    relocate(sternCoordinate);
                 }
             }
         }
