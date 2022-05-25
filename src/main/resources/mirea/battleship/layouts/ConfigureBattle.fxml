@@ -33,7 +33,7 @@
       <ButtonBar styleClass="action-button">
         <buttons>
           <Button id="done-button" fx:id="doneButton" onAction="#forward" styleClass="done-button"
-                  text="_Сохранить настройки" ButtonBar.buttonData="OK_DONE"/>
+                  text="_Применить настройки" ButtonBar.buttonData="OK_DONE"/>
         </buttons>
       </ButtonBar>
     </VBox>

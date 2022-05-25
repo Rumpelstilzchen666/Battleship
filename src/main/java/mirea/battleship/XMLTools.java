@@ -15,7 +15,7 @@ public class XMLTools {
         final XmlMapper outXMLMapper = new XmlMapper();
         outXMLMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
         try {
-            outXMLMapper.writerWithDefaultPrettyPrinter().writeValue(new File(Settings.BATTLE_SET_OUT_FILE_PATH),
+            outXMLMapper.writerWithDefaultPrettyPrinter().writeValue(getOutFile(Settings.BATTLE_SET_OUT_FILE_PATH),
                     battleSet);
         } catch(IOException e) {
             e.printStackTrace();
@@ -32,7 +32,7 @@ public class XMLTools {
             outXMLMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
             try {
                 outXMLMapper.writerWithDefaultPrettyPrinter().withRootName("Battle").writeValue(
-                        new File(Settings.BATTLE_OUT_FILE_PATH), battle.getXMLMap());
+                        getOutFile(Settings.BATTLE_OUT_FILE_PATH), battle.getXMLMap());
             } catch(IOException e) {
                 e.printStackTrace();
             }
@@ -41,6 +41,33 @@ public class XMLTools {
 
     public static Battle getBattle() throws IOException, IllegalXMLException {
         return new Battle(new XmlMapper().readValue(inputStreamToString(Settings.BATTLE_IN_FILE_PATH), Map.class));
+    }
+
+    private static File getOutFile(final String outFilePath) throws IOException {
+        File outFile = new File(outFilePath);
+        if(!outFile.exists()) {
+            final File outFileParent = outFile.getParentFile();
+            if(outFileParent.exists()) {
+                if(!outFileParent.isDirectory()) {
+                    throw new FileNotFoundException("Родитель файла - не папка");
+                }
+            } else if(!outFileParent.mkdirs()) {
+                throw new IOException("Невозможно создать папку для файла");
+            }
+        }
+        return outFile;
+    }
+
+    private static String inputStreamToString(final String fileName) throws IOException {
+        final StringBuilder sb = new StringBuilder();
+        final BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8));
+        String line;
+        while((line = br.readLine()) != null) {
+            sb.append(line).append('\n');
+        }
+        br.close();
+        return sb.toString();
     }
 
     public static <T> T reXML(final Object o, final Class<T> valueType) throws JsonProcessingException {
@@ -53,18 +80,6 @@ public class XMLTools {
         Object map = getNonNull(XMLMap, mapKey);
         if(map instanceof Map<?, ?>) { return (Map<String, Object>) map; }
         throw new IllegalXMLException("Неверный тип элемента " + angleBrc(mapKey) + '.');
-    }
-
-    private static String inputStreamToString(final String fileName) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        String line;
-        BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8));
-        while((line = br.readLine()) != null) {
-            sb.append(line).append('\n');
-        }
-        br.close();
-        return sb.toString();
     }
 
     public static ArrayList<Map<String, Object>> getArrayListFromXMLMap(final Map<String, Object> XMLMap,
